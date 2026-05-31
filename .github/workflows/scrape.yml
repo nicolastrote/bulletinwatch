@@ -1,0 +1,86 @@
+name: BulletinWatch — Scrape & Report
+
+on:
+  schedule:
+    # Toutes les heures de 9h à 18h, heure de Québec (EDT = UTC-4)
+    # 9h EDT = 13h UTC | 18h EDT = 22h UTC
+    - cron: "0 13-22 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Forcer un scraping immédiat"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  scrape-and-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium --with-deps
+
+      - name: Scrape portailparents.ca
+        env:
+          PORTAL_EMAIL: ${{ secrets.PORTAL_EMAIL }}
+          PORTAL_PASSWORD: ${{ secrets.PORTAL_PASSWORD }}
+        run: python src/scraper.py
+
+      - name: Analyse les notes
+        run: python src/analyser.py
+
+      - name: Génère le rapport HTML
+        run: python src/reporter.py
+
+      - name: Commit & push données + rapport
+        run: |
+          git config user.name "bulletinwatch-bot"
+          git config user.email "bot@bulletinwatch"
+          git add data/ docs/
+          git diff --staged --quiet || git commit -m "chore: update notes $(date '+%Y-%m-%d %H:%M') EDT"
+          git push
+
+  # Job séparé pour publier sur GitHub Pages
+  deploy-pages:
+    needs: scrape-and-report
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

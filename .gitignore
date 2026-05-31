@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# Playwright
+/playwright-report/
+
+# Logs locaux
+/tmp/bulletinwatch-*.log
+
+# Données sensibles (ne pas commiter si contiennent info perso)
+# data/ est volontairement inclus (historique)
