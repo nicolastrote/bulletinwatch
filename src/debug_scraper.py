@@ -23,20 +23,20 @@ async def main():
         context = await browser.new_context()
         page = await context.new_page()
 
-        # Intercepter toutes les requêtes réseau
+        # Capturer TOUS les appels à l'API mozaik
         async def on_request(request):
             url = request.url
-            if any(kw in url.lower() for kw in ["api", "result", "note", "bulletin", "cours", "matiere", "eleve", "etudiant"]):
+            if "mozaikportail.ca" in url or "portailparents.ca/api" in url:
                 api_calls.append({"method": request.method, "url": url})
 
         async def on_response(response):
             url = response.url
             ct = response.headers.get("content-type", "")
-            if "json" in ct and any(kw in url.lower() for kw in ["api", "result", "note", "bulletin", "cours", "matiere", "eleve"]):
+            if "mozaikportail.ca" in url and "json" in ct:
                 try:
                     body = await response.json()
                     print(f"[API JSON] {url}")
-                    print(f"  → {json.dumps(body)[:300]}")
+                    print(f"  → {json.dumps(body, ensure_ascii=False)[:400]}")
                 except Exception:
                     pass
 
@@ -80,7 +80,10 @@ async def main():
         print("[debug] Navigation vers résultats...")
         await page.goto("https://portailparents.ca/resultats/resultatsCourants/", timeout=30000)
         await page.wait_for_load_state("networkidle", timeout=30000)
-        await page.wait_for_timeout(5000)  # laisser le JS charger les données
+        await page.wait_for_timeout(8000)  # laisser le JS charger les données
+        # Scroll pour déclencher le lazy loading
+        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        await page.wait_for_timeout(3000)
         await page.screenshot(path="debug_05_resultats.png")
 
         html = await page.content()
