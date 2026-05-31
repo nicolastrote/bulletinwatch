@@ -46,15 +46,21 @@ async def main():
         await page.fill("input[type='password']", password)
         await page.screenshot(path="debug_03_form_filled.png")
 
-        print("[debug] Soumission formulaire...")
-        await page.click("button[type='submit'], input[type='submit'], button:has-text('Connexion')")
-        await page.wait_for_load_state("networkidle", timeout=30000)
+        print("[debug] Soumission formulaire (Azure AD B2C)...")
+        await page.click("button#next, button[type='submit']")
+        # Azure B2C fait un XHR puis redirige vers mozaikacces.ca/signin-b2c puis vers portailparents.ca
+        try:
+            await page.wait_for_url("*portailparents.ca/**", timeout=30000)
+        except Exception:
+            print(f"[debug] Pas de redirect vers portailparents.ca — URL : {page.url}")
+        await page.wait_for_load_state("networkidle", timeout=15000)
         await page.screenshot(path="debug_04_after_login.png")
         print(f"[debug] URL après login : {page.url}")
 
         print("[debug] Navigation vers résultats...")
         await page.goto("https://portailparents.ca/resultats/resultatsCourants/", timeout=30000)
         await page.wait_for_load_state("networkidle", timeout=30000)
+        await page.wait_for_timeout(3000)  # laisser le JS charger les données
         await page.screenshot(path="debug_05_resultats.png")
 
         html = await page.content()
@@ -66,6 +72,17 @@ async def main():
         print(f"[debug] {len(tables)} table(s) trouvée(s)")
         for i, t in enumerate(tables):
             print(f"  table[{i}] classes={await t.get_attribute('class')}")
+
+        # Lister les éléments avec des classes contenant "note", "result", "matiere", "cours"
+        for kw in ["note", "result", "matiere", "cours", "bulletin", "grade"]:
+            els = await page.query_selector_all(f"[class*='{kw}' i]")
+            if els:
+                print(f"[debug] {len(els)} éléments avec class *={kw}")
+                for el in els[:3]:
+                    tag = await el.evaluate("el => el.tagName")
+                    cls = await el.get_attribute("class")
+                    txt = (await el.inner_text())[:80].replace("\n", " ")
+                    print(f"  <{tag}> class={cls} → {txt}")
 
         await browser.close()
         print("[debug] Done. Ouvre les fichiers debug_*.html et debug_*.png")
