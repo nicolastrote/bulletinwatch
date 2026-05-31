@@ -20,7 +20,7 @@ async def main():
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        context = await p.chromium.new_context()
+        context = await browser.new_context()
         page = await context.new_page()
 
         # Intercepter toutes les requêtes réseau
