@@ -14,8 +14,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   scrape-and-report:
@@ -58,29 +56,3 @@ jobs:
           git add data/ docs/
           git diff --staged --quiet || git commit -m "chore: update notes $(date '+%Y-%m-%d %H:%M') EDT"
           git push
-
-  # Job séparé pour publier sur GitHub Pages
-  deploy-pages:
-    needs: scrape-and-report
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs/
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
