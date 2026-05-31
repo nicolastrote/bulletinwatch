@@ -38,21 +38,41 @@ async def scrape() -> list[dict]:
         raise ValueError("PORTAL_EMAIL et PORTAL_PASSWORD requis")
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
+        browser = await p.chromium.launch(
+            headless=True,
+            args=["--disable-blink-features=AutomationControlled"],
+        )
+        context = await browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            viewport={"width": 1280, "height": 800},
+        )
+        page = await context.new_page()
 
         try:
             await page.goto("https://portailparents.ca/accueil/fr/", timeout=60000)
+            await page.wait_for_load_state("networkidle", timeout=15000)
 
             # Cliquer sur "Se connecter"
             await page.click("text=Se connecter", timeout=10000)
             await page.wait_for_load_state("networkidle", timeout=15000)
 
-            # Remplir le formulaire de login
-            await page.fill("input[type='email'], input[name='email'], #email", email)
-            await page.fill("input[type='password'], input[name='password'], #password", password)
-            await page.click("button[type='submit'], input[type='submit']")
-            await page.wait_for_load_state("networkidle", timeout=30000)
+            # Remplir le formulaire de login (type() pour éviter détection bot)
+            await page.click("#email")
+            await page.type("#email", email, delay=60)
+            await page.click("#password")
+            await page.type("#password", password, delay=60)
+            await page.click("button#next")
+
+            # Attendre la sortie du flux OAuth B2C
+            await page.wait_for_function(
+                "!window.location.href.includes('mozaikb2c.b2clogin.com')",
+                timeout=45000,
+            )
+            await page.wait_for_load_state("networkidle", timeout=20000)
 
             # Naviguer vers les résultats
             await page.goto(
@@ -60,6 +80,7 @@ async def scrape() -> list[dict]:
                 timeout=30000,
             )
             await page.wait_for_load_state("networkidle", timeout=30000)
+            await page.wait_for_timeout(5000)
 
             # Extraire les notes (adapter les sélecteurs selon la structure réelle)
             subjects = []
@@ -78,6 +99,7 @@ async def scrape() -> list[dict]:
             return subjects
 
         finally:
+            await context.close()
             await browser.close()
 
 
