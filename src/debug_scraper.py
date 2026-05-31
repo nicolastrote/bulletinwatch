@@ -134,16 +134,37 @@ async def main():
             child_id = url_match.group(1)
             print(f"       ID enfant : {child_id}")
 
-        # ── Étape 6 : naviguer vers résultats ─────────────────────────────
-        print("[debug] 6. Navigation vers résultats...")
-        if child_id:
-            results_url = f"https://portailparents.ca/resultats/{child_id}"
+        # ── Étape 6 : cliquer sur "Résultats" dans le menu SPA ────────────
+        print("[debug] 6. Clic sur Résultats dans le menu...")
+        clicked = False
+        for selector in [
+            "a[href*='resultats']",
+            "a[href*='résultats']",
+            "nav a:has-text('Résultats')",
+            "a:has-text('Résultats')",
+            "button:has-text('Résultats')",
+            "[data-menu*='resultat' i]",
+        ]:
+            try:
+                el = await page.query_selector(selector)
+                if el:
+                    href = await el.get_attribute("href")
+                    txt = await el.inner_text()
+                    print(f"       Trouvé : '{txt.strip()}' → {href}")
+                    await el.click()
+                    clicked = True
+                    break
+            except Exception:
+                pass
+
+        if not clicked:
+            print("       Lien Résultats non trouvé — dump du HTML de la page courante")
+            html = await page.content()
+            Path("debug_06_nav_failed.html").write_text(html, encoding="utf-8")
         else:
-            results_url = PORTAL_RESULTS
-        print(f"       URL cible : {results_url}")
-        await page.goto(results_url, timeout=30000)
-        await page.wait_for_load_state("networkidle", timeout=30000)
-        await page.wait_for_timeout(8000)  # attente JS SPA
+            await page.wait_for_load_state("networkidle", timeout=30000)
+            await page.wait_for_timeout(8000)  # attente JS SPA
+
         html = await page.content()
         Path("debug_06_resultats.html").write_text(html, encoding="utf-8")
         await page.screenshot(path="debug_06_resultats.png")
