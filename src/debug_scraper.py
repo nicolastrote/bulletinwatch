@@ -113,9 +113,44 @@ async def main():
                     print(f"  <{tag}> class={cls} → {txt}")
 
         # Résumé des appels API capturés
-        print(f"\n[debug] {len(api_calls)} appel(s) API capturé(s) avec keywords :")
+        print(f"\n[debug] {len(api_calls)} appel(s) API capturé(s) :")
         for call in api_calls:
             print(f"  {call['method']} {call['url']}")
+
+        # Tester des endpoints candidats pour les résultats/bulletins
+        BASE = "https://apiaffaires.mozaikportail.ca/api"
+        CODE = "762252"
+        FICHE = "5260641"
+        ANNEE = "2025"
+        GUID = "21bfc3e9-e1ca-4cc5-8754-046dcaaae636"
+        candidates = [
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats/courants",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins/{ANNEE}",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/notes",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/notes/courants",
+            f"{BASE}/individu/eleves/{GUID}/resultats",
+            f"{BASE}/bulletin/eleves/{CODE}/{FICHE}/{ANNEE}",
+            f"{BASE}/resultat/eleves/{CODE}/{FICHE}/{ANNEE}",
+            f"{BASE}/organisationScolaire/eleves/{CODE}/{FICHE}/resultats/{ANNEE}",
+        ]
+        print("\n[debug] Test endpoints candidats résultats :")
+        for url in candidates:
+            result = await page.evaluate(f"""
+                async () => {{
+                    try {{
+                        const r = await fetch("{url}", {{credentials: 'include'}});
+                        const text = await r.text();
+                        return {{status: r.status, body: text.slice(0, 300)}};
+                    }} catch(e) {{ return {{status: 0, body: e.toString()}}; }}
+                }}
+            """)
+            status = result.get("status", 0)
+            body = result.get("body", "")
+            print(f"  [{status}] {url.replace(BASE, '')}")
+            if status == 200:
+                print(f"    → {body}")
 
         await browser.close()
         print("[debug] Done.")
