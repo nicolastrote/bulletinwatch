@@ -12,5 +12,9 @@ venv/
 # Logs locaux
 /tmp/bulletinwatch-*.log
 
+# Fichiers de debug (jamais commiter)
+debug_*.html
+debug_*.png
+
 # Données sensibles (ne pas commiter si contiennent info perso)
 # data/ est volontairement inclus (historique)
