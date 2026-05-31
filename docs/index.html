@@ -3,17 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BulletinWatch — En attente</title>
+  <meta http-equiv="refresh" content="3600">
+  <title>BulletinWatch</title>
   <style>
-    body { background: #0D1117; color: #E6EDF3; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-    p { color: #8B949E; }
+    :root {
+      --bg: #0D1117; --surface: #161B22; --border: #30363D;
+      --text: #E6EDF3; --muted: #8B949E;
+      --green: #1D9E75; --orange: #E3A03A; --red: #CF222E;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; padding: 1rem; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; margin-bottom: 1rem; }
+    h2 { font-size: 1rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+    .banner { border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-weight: 600; }
+    .banner.critical { background: #3d0c0e; border: 1px solid var(--red); color: #ff7b7b; }
+    .banner.warning { background: #2d1f07; border: 1px solid var(--orange); color: #f5c97a; }
+    .banner.error { background: #3d0c0e; border: 1px solid var(--red); color: #ff7b7b; }
+    @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.6 } }
+    .pulse { animation: pulse 2s infinite; }
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+    .badge-green { background: #0f3d2e; color: var(--green); }
+    .badge-orange { background: #2d1f07; color: var(--orange); }
+    .badge-red { background: #3d0c0e; color: var(--red); }
+    .summary { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .stat { font-size: 2rem; font-weight: 700; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 0.5rem 0.75rem; color: var(--muted); font-size: 0.8rem; border-bottom: 1px solid var(--border); }
+    td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    .color-green { color: var(--green); }
+    .color-orange { color: var(--orange); }
+    .color-red { color: var(--red); }
+    .color-muted { color: var(--muted); }
+    footer { color: var(--muted); font-size: 0.75rem; text-align: center; margin-top: 1.5rem; }
+    @media (max-width: 480px) { .stat { font-size: 1.5rem; } }
   </style>
 </head>
 <body>
-  <div>
-    <h1>📊 BulletinWatch</h1>
-    <p>En attente du premier scraping...</p>
-    <p>Le rapport sera généré automatiquement à la prochaine exécution de GitHub Actions.</p>
+  <h1>📊 BulletinWatch</h1>
+  <div class="banner critical pulse">❌ SESSION EN DANGER — Action requise</div>
+  <div class="card">
+    <div class="summary">
+      <div>
+        <div class="stat">72.2%</div>
+        <div class="stat-label">Moyenne globale</div>
+      </div>
+      <div>
+        <div style="margin-top:0.4rem"><span class="badge badge-red">Critique</span></div>
+        <div class="stat-label" style="margin-top:0.4rem">Session</div>
+      </div>
+    </div>
+    <p style="color:var(--muted); font-size:0.9rem; margin-top:0.75rem">1 matière(s) en échec : Français, langue d'enseignement. Action requise.</p>
   </div>
+  <div class="card">
+    <h2>Notes par matière</h2>
+    <table>
+      <thead><tr><th>Matière</th><th>Note</th><th>Tendance</th><th>Statut</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Éducation physique et à la santé</td>
+          <td class="color-green"><strong>85.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>Science et technologie</td>
+          <td class="color-green"><strong>79.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>Mathématique</td>
+          <td class="color-green"><strong>76.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>Culture et citoyenneté québécoise</td>
+          <td class="color-green"><strong>75.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>Histoire et éducation à la citoyenneté</td>
+          <td class="color-orange"><strong>65.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>⚠️</td>
+        </tr>
+        <tr>
+          <td>Géographie</td>
+          <td class="color-green"><strong>75.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>Français, langue d'enseignement</td>
+          <td class="color-red"><strong>55.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>❌</td>
+        </tr>
+        <tr>
+          <td>Anglais, langue seconde - Programme de base</td>
+          <td class="color-green"><strong>77.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>✅</td>
+        </tr>
+        <tr>
+          <td>Arts plastiques</td>
+          <td class="color-orange"><strong>63.0%</strong></td>
+          <td class="color-muted">— </td>
+          <td>⚠️</td>
+        </tr></tbody>
+    </table>
+  </div>
+  <footer>Dernière mise à jour : 23:16 le 2026-05-31 (UTC) &nbsp;·&nbsp; Rafraîchissement auto toutes les heures</footer>
 </body>
 </html>

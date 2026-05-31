@@ -1,0 +1,98 @@
+{
+  "analysed_at": "2026-05-31T23:16:29.492946+00:00",
+  "global_average": 72.2,
+  "session_status": "failing",
+  "alert_level": "critical",
+  "subjects": [
+    {
+      "name": "Éducation physique et à la santé",
+      "grade": 85.0,
+      "status": "on_track",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": false,
+      "data_points": 1
+    },
+    {
+      "name": "Science et technologie",
+      "grade": 79.0,
+      "status": "on_track",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": false,
+      "data_points": 1
+    },
+    {
+      "name": "Mathématique",
+      "grade": 76.0,
+      "status": "on_track",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": false,
+      "data_points": 1
+    },
+    {
+      "name": "Culture et citoyenneté québécoise",
+      "grade": 75.0,
+      "status": "on_track",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": false,
+      "data_points": 1
+    },
+    {
+      "name": "Histoire et éducation à la citoyenneté",
+      "grade": 65.0,
+      "status": "at_risk",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": true,
+      "data_points": 1
+    },
+    {
+      "name": "Géographie",
+      "grade": 75.0,
+      "status": "on_track",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": false,
+      "data_points": 1
+    },
+    {
+      "name": "Français, langue d'enseignement",
+      "grade": 55.0,
+      "status": "failing",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": true,
+      "data_points": 1
+    },
+    {
+      "name": "Anglais, langue seconde - Programme de base",
+      "grade": 77.0,
+      "status": "on_track",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": false,
+      "data_points": 1
+    },
+    {
+      "name": "Arts plastiques",
+      "grade": 63.0,
+      "status": "at_risk",
+      "trend": "insufficient_data",
+      "trend_delta": 0.0,
+      "at_risk": true,
+      "data_points": 1
+    }
+  ],
+  "subjects_at_risk": [
+    "Histoire et éducation à la citoyenneté",
+    "Arts plastiques"
+  ],
+  "subjects_failing": [
+    "Français, langue d'enseignement"
+  ],
+  "insight": "1 matière(s) en échec : Français, langue d'enseignement. Action requise.",
+  "data_points": 1
+}
