@@ -125,9 +125,23 @@ async def main():
             print("[debug] Arrêt — login échoué.")
             return
 
+        # ── Extraire l'ID enfant depuis l'URL ou les API calls ────────────
+        # L'URL post-login est typiquement portailparents.ca/communications/{child-id}
+        import re as _re
+        child_id = None
+        url_match = _re.search(r'/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', page.url)
+        if url_match:
+            child_id = url_match.group(1)
+            print(f"       ID enfant : {child_id}")
+
         # ── Étape 6 : naviguer vers résultats ─────────────────────────────
         print("[debug] 6. Navigation vers résultats...")
-        await page.goto(PORTAL_RESULTS, timeout=30000)
+        if child_id:
+            results_url = f"https://portailparents.ca/resultats/{child_id}"
+        else:
+            results_url = PORTAL_RESULTS
+        print(f"       URL cible : {results_url}")
+        await page.goto(results_url, timeout=30000)
         await page.wait_for_load_state("networkidle", timeout=30000)
         await page.wait_for_timeout(8000)  # attente JS SPA
         html = await page.content()
