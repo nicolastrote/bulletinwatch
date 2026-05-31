@@ -7,6 +7,7 @@ Usage: PORTAL_EMAIL=x PORTAL_PASSWORD=y python src/debug_scraper.py
 import asyncio
 import json
 import os
+import re
 import urllib.request
 import urllib.error
 from pathlib import Path
@@ -18,129 +19,144 @@ async def main():
     email = os.getenv("PORTAL_EMAIL")
     password = os.getenv("PORTAL_PASSWORD")
 
-    api_calls = []
-    captured_headers = {}  # headers d'une requête réussie vers mozaikportail
+    pre_nav_urls = set()
+    post_nav_calls = []
+    captured_headers = {}
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
         page = await context.new_page()
 
-        # Capturer headers des requêtes mozaik pour extraire le Bearer token
+        navigated_to_results = False
+
         async def on_request(request):
             url = request.url
             if "mozaikportail.ca" in url:
-                api_calls.append({"method": request.method, "url": url})
                 if not captured_headers:
                     h = request.headers
                     if "authorization" in h:
                         captured_headers.update(h)
+                if navigated_to_results:
+                    post_nav_calls.append(url)
+                else:
+                    pre_nav_urls.add(url)
 
         async def on_response(response):
             url = response.url
             ct = response.headers.get("content-type", "")
-            if "mozaikportail.ca" in url and "json" in ct:
+            if "mozaikportail.ca" in url and "json" in ct and navigated_to_results:
                 try:
                     body = await response.json()
-                    print(f"[API JSON] {url}")
-                    print(f"  → {json.dumps(body, ensure_ascii=False)[:400]}")
+                    print(f"[POST-NAV JSON] {url.split('/api/')[1] if '/api/' in url else url}")
+                    print(f"  → {json.dumps(body, ensure_ascii=False)[:500]}")
                 except Exception:
                     pass
 
         page.on("request", on_request)
         page.on("response", on_response)
 
-        print("[debug] Chargement page accueil...")
+        # Login
+        print("[debug] Login...")
         await page.goto("https://portailparents.ca/accueil/fr/", timeout=60000)
-        await page.screenshot(path="debug_01_accueil.png")
-
-        print("[debug] Clic Se connecter...")
+        await page.wait_for_load_state("networkidle", timeout=15000)
         try:
             await page.click("text=Se connecter", timeout=10000)
         except Exception:
             await page.click("a[href*='connect'], button:has-text('connect')", timeout=5000)
         await page.wait_for_load_state("networkidle", timeout=15000)
-
-        print("[debug] Remplissage formulaire login...")
-        inputs = await page.query_selector_all("input")
-        for i, inp in enumerate(inputs):
-            t = await inp.get_attribute("type")
-            n = await inp.get_attribute("name")
-            pid = await inp.get_attribute("id")
-            print(f"  input[{i}] type={t} name={n} id={pid}")
-
         await page.fill("#email", email)
         await page.fill("#password", password)
-
-        print("[debug] Soumission formulaire...")
         await page.click("button#next, button[type='submit']")
         try:
             await page.wait_for_url("*portailparents.ca/**", timeout=30000)
         except Exception:
-            print(f"[debug] URL après submit : {page.url}")
+            pass
         await page.wait_for_load_state("networkidle", timeout=15000)
-        print(f"[debug] URL après login : {page.url}")
+        print(f"[debug] Connecté — URL : {page.url}")
 
-        print("[debug] Navigation vers résultats...")
-        await page.goto("https://portailparents.ca/resultats/resultatsCourants/", timeout=30000)
+        # Chercher un lien résultats dans le menu
+        print("[debug] Recherche lien Résultats dans le menu...")
+        result_link = None
+        for selector in [
+            "a[href*='resultat' i]",
+            "a[href*='bulletin' i]",
+            "a[href*='note' i]",
+            "text=Résultats",
+            "text=résultats",
+            "text=Bulletin",
+            "text=Notes",
+        ]:
+            try:
+                el = await page.query_selector(selector)
+                if el:
+                    href = await el.get_attribute("href")
+                    txt = await el.inner_text()
+                    print(f"  Trouvé : '{txt}' → {href}")
+                    result_link = el
+                    break
+            except Exception:
+                pass
+
+        # Activer le flag avant de naviguer
+        navigated_to_results = True
+
+        if result_link:
+            print("[debug] Clic sur le lien résultats...")
+            await result_link.click()
+        else:
+            print("[debug] Lien non trouvé — navigation directe vers résultats...")
+            await page.goto("https://portailparents.ca/resultats/resultatsCourants/", timeout=30000)
+
         await page.wait_for_load_state("networkidle", timeout=30000)
-        await page.wait_for_timeout(8000)
-        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        await page.wait_for_timeout(3000)
+        await page.wait_for_timeout(10000)  # attente généreuse pour le JS
+        await page.screenshot(path="debug_resultats.png")
+        print(f"[debug] URL finale : {page.url}")
 
-        # Résumé des appels API capturés
-        unique_urls = list(dict.fromkeys(c["url"] for c in api_calls))
-        print(f"\n[debug] {len(unique_urls)} URL(s) API uniques :")
-        for url in unique_urls:
-            print(f"  {url}")
+        # Texte visible sur la page résultats
+        body_text = await page.inner_text("body")
+        lines = [l.strip() for l in body_text.splitlines() if l.strip()]
+        print(f"[debug] Texte visible ({len(lines)} lignes) :")
+        for line in lines[:60]:
+            print(f"  {line}")
 
-        # Auth token capturé ?
+        # Nouveaux appels API après navigation
+        new_urls = [u for u in post_nav_calls if u not in pre_nav_urls]
+        print(f"\n[debug] {len(new_urls)} nouveaux appels API après navigation résultats :")
+        for u in new_urls:
+            path = u.split("/api/")[1] if "/api/" in u else u
+            print(f"  {path}")
+
+        # Récupérer les scripts JS pour chercher les endpoints
+        print("\n[debug] Recherche endpoints dans JS bundle...")
+        scripts = await page.query_selector_all("script[src]")
+        js_bundle_url = None
+        for s in scripts:
+            src = await s.get_attribute("src")
+            if src and ("main" in src or "app" in src or "chunk" in src) and src.endswith(".js"):
+                js_bundle_url = src if src.startswith("http") else f"https://portailparents.ca{src}"
+                break
+
         auth = captured_headers.get("authorization", "")
-        print(f"\n[debug] Authorization header capturé : {'OUI — ' + auth[:40] + '...' if auth else 'NON'}")
+        print(f"[debug] Authorization : {'OUI' if auth else 'NON'}")
 
         await browser.close()
 
-    # Tester endpoints candidats côté Python (pas de CORS)
-    if auth:
-        BASE = "https://apiaffaires.mozaikportail.ca/api"
-        CODE = "762252"
-        FICHE = "5260641"
-        ANNEE_STUDENT = "2025"
-        ANNEE_ACTIVE = "2026"
-        GUID = "21bfc3e9-e1ca-4cc5-8754-046dcaaae636"
-        candidates = [
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats/courants",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats/{ANNEE_STUDENT}",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats/{ANNEE_ACTIVE}",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins/{ANNEE_STUDENT}",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins/{ANNEE_ACTIVE}",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/notes",
-            f"{BASE}/individu/eleves/{GUID}/resultats",
-            f"{BASE}/individu/eleves/{GUID}/bulletins",
-            f"{BASE}/bulletin/eleves/{CODE}/{FICHE}/{ANNEE_STUDENT}",
-            f"{BASE}/resultat/eleves/{CODE}/{FICHE}/{ANNEE_STUDENT}",
-            f"{BASE}/organisationScolaire/eleves/{CODE}/{FICHE}/resultats/{ANNEE_STUDENT}",
-        ]
-        print("\n[debug] Test endpoints candidats (Python, avec Bearer) :")
-        for url in candidates:
-            req = urllib.request.Request(url, headers={
-                "Authorization": auth,
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            })
-            try:
-                with urllib.request.urlopen(req, timeout=10) as resp:
-                    body = resp.read().decode()
-                    print(f"  [200] {url.replace(BASE, '')}")
-                    print(f"    → {body[:300]}")
-            except urllib.error.HTTPError as e:
-                print(f"  [{e.code}] {url.replace(BASE, '')}")
-            except Exception as ex:
-                print(f"  [ERR] {url.replace(BASE, '')} — {ex}")
-    else:
-        print("[debug] Pas de token — impossible de tester les endpoints")
+    # Rechercher dans le JS bundle
+    if js_bundle_url:
+        print(f"[debug] Téléchargement bundle : {js_bundle_url[:80]}...")
+        try:
+            req = urllib.request.Request(js_bundle_url)
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                js = resp.read().decode(errors="replace")
+            # Chercher patterns d'endpoints
+            patterns = re.findall(r'["\']([^"\']*(?:resultat|bulletin|note|cours|matiere|eleve)[^"\']{0,60})["\']', js, re.IGNORECASE)
+            unique = list(dict.fromkeys(p for p in patterns if "/" in p))
+            print(f"[debug] {len(unique)} patterns trouvés dans le JS :")
+            for p in unique[:30]:
+                print(f"  {p}")
+        except Exception as e:
+            print(f"[debug] Erreur JS bundle : {e}")
 
     print("[debug] Done.")
 
