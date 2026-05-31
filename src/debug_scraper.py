@@ -7,6 +7,8 @@ Usage: PORTAL_EMAIL=x PORTAL_PASSWORD=y python src/debug_scraper.py
 import asyncio
 import json
 import os
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 from playwright.async_api import async_playwright
@@ -17,17 +19,22 @@ async def main():
     password = os.getenv("PORTAL_PASSWORD")
 
     api_calls = []
+    captured_headers = {}  # headers d'une requête réussie vers mozaikportail
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
         page = await context.new_page()
 
-        # Capturer TOUS les appels à l'API mozaik
+        # Capturer headers des requêtes mozaik pour extraire le Bearer token
         async def on_request(request):
             url = request.url
-            if "mozaikportail.ca" in url or "portailparents.ca/api" in url:
+            if "mozaikportail.ca" in url:
                 api_calls.append({"method": request.method, "url": url})
+                if not captured_headers:
+                    h = request.headers
+                    if "authorization" in h:
+                        captured_headers.update(h)
 
         async def on_response(response):
             url = response.url
@@ -53,7 +60,6 @@ async def main():
         except Exception:
             await page.click("a[href*='connect'], button:has-text('connect')", timeout=5000)
         await page.wait_for_load_state("networkidle", timeout=15000)
-        await page.screenshot(path="debug_02_login_page.png")
 
         print("[debug] Remplissage formulaire login...")
         inputs = await page.query_selector_all("input")
@@ -65,7 +71,6 @@ async def main():
 
         await page.fill("#email", email)
         await page.fill("#password", password)
-        await page.screenshot(path="debug_03_form_filled.png")
 
         print("[debug] Soumission formulaire...")
         await page.click("button#next, button[type='submit']")
@@ -74,86 +79,70 @@ async def main():
         except Exception:
             print(f"[debug] URL après submit : {page.url}")
         await page.wait_for_load_state("networkidle", timeout=15000)
-        await page.screenshot(path="debug_04_after_login.png")
         print(f"[debug] URL après login : {page.url}")
 
         print("[debug] Navigation vers résultats...")
         await page.goto("https://portailparents.ca/resultats/resultatsCourants/", timeout=30000)
         await page.wait_for_load_state("networkidle", timeout=30000)
-        await page.wait_for_timeout(8000)  # laisser le JS charger les données
-        # Scroll pour déclencher le lazy loading
+        await page.wait_for_timeout(8000)
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         await page.wait_for_timeout(3000)
-        await page.screenshot(path="debug_05_resultats.png")
-
-        html = await page.content()
-        Path("debug_05_resultats.html").write_text(html, encoding="utf-8")
-        print(f"[debug] HTML sauvé ({len(html)} chars)")
-
-        # Dump texte visible pour comprendre la structure
-        body_text = await page.inner_text("body")
-        lines = [l.strip() for l in body_text.splitlines() if l.strip()]
-        print(f"[debug] Texte visible ({len(lines)} lignes) :")
-        for line in lines[:50]:
-            print(f"  {line}")
-
-        # Tables
-        tables = await page.query_selector_all("table")
-        print(f"[debug] {len(tables)} table(s)")
-
-        # Divs/spans avec keywords
-        for kw in ["note", "result", "matiere", "cours", "bulletin", "grade", "eleve", "moyenne"]:
-            els = await page.query_selector_all(f"[class*='{kw}' i], [id*='{kw}' i]")
-            if els:
-                print(f"[debug] {len(els)} éléments *={kw}")
-                for el in els[:3]:
-                    tag = await el.evaluate("el => el.tagName")
-                    cls = await el.get_attribute("class")
-                    txt = (await el.inner_text())[:100].replace("\n", " ")
-                    print(f"  <{tag}> class={cls} → {txt}")
 
         # Résumé des appels API capturés
-        print(f"\n[debug] {len(api_calls)} appel(s) API capturé(s) :")
-        for call in api_calls:
-            print(f"  {call['method']} {call['url']}")
+        unique_urls = list(dict.fromkeys(c["url"] for c in api_calls))
+        print(f"\n[debug] {len(unique_urls)} URL(s) API uniques :")
+        for url in unique_urls:
+            print(f"  {url}")
 
-        # Tester des endpoints candidats pour les résultats/bulletins
+        # Auth token capturé ?
+        auth = captured_headers.get("authorization", "")
+        print(f"\n[debug] Authorization header capturé : {'OUI — ' + auth[:40] + '...' if auth else 'NON'}")
+
+        await browser.close()
+
+    # Tester endpoints candidats côté Python (pas de CORS)
+    if auth:
         BASE = "https://apiaffaires.mozaikportail.ca/api"
         CODE = "762252"
         FICHE = "5260641"
-        ANNEE = "2025"
+        ANNEE_STUDENT = "2025"
+        ANNEE_ACTIVE = "2026"
         GUID = "21bfc3e9-e1ca-4cc5-8754-046dcaaae636"
         candidates = [
             f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats/courants",
             f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats/{ANNEE_STUDENT}",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/resultats/{ANNEE_ACTIVE}",
             f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins/{ANNEE}",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins/{ANNEE_STUDENT}",
+            f"{BASE}/individu/eleves/{CODE}/{FICHE}/bulletins/{ANNEE_ACTIVE}",
             f"{BASE}/individu/eleves/{CODE}/{FICHE}/notes",
-            f"{BASE}/individu/eleves/{CODE}/{FICHE}/notes/courants",
             f"{BASE}/individu/eleves/{GUID}/resultats",
-            f"{BASE}/bulletin/eleves/{CODE}/{FICHE}/{ANNEE}",
-            f"{BASE}/resultat/eleves/{CODE}/{FICHE}/{ANNEE}",
-            f"{BASE}/organisationScolaire/eleves/{CODE}/{FICHE}/resultats/{ANNEE}",
+            f"{BASE}/individu/eleves/{GUID}/bulletins",
+            f"{BASE}/bulletin/eleves/{CODE}/{FICHE}/{ANNEE_STUDENT}",
+            f"{BASE}/resultat/eleves/{CODE}/{FICHE}/{ANNEE_STUDENT}",
+            f"{BASE}/organisationScolaire/eleves/{CODE}/{FICHE}/resultats/{ANNEE_STUDENT}",
         ]
-        print("\n[debug] Test endpoints candidats résultats :")
+        print("\n[debug] Test endpoints candidats (Python, avec Bearer) :")
         for url in candidates:
-            result = await page.evaluate(f"""
-                async () => {{
-                    try {{
-                        const r = await fetch("{url}", {{credentials: 'include'}});
-                        const text = await r.text();
-                        return {{status: r.status, body: text.slice(0, 300)}};
-                    }} catch(e) {{ return {{status: 0, body: e.toString()}}; }}
-                }}
-            """)
-            status = result.get("status", 0)
-            body = result.get("body", "")
-            print(f"  [{status}] {url.replace(BASE, '')}")
-            if status == 200:
-                print(f"    → {body}")
+            req = urllib.request.Request(url, headers={
+                "Authorization": auth,
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            })
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    body = resp.read().decode()
+                    print(f"  [200] {url.replace(BASE, '')}")
+                    print(f"    → {body[:300]}")
+            except urllib.error.HTTPError as e:
+                print(f"  [{e.code}] {url.replace(BASE, '')}")
+            except Exception as ex:
+                print(f"  [ERR] {url.replace(BASE, '')} — {ex}")
+    else:
+        print("[debug] Pas de token — impossible de tester les endpoints")
 
-        await browser.close()
-        print("[debug] Done.")
+    print("[debug] Done.")
 
 
 if __name__ == "__main__":
