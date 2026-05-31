@@ -1,6 +1,6 @@
 """
 BulletinWatch — Scraper
-Extrait les notes depuis portailparents.ca et écrit data/latest.json
+Login mozaïk + interception API mozaikportail.ca → data/latest.json
 """
 
 import asyncio
@@ -30,12 +30,53 @@ def write_error(message: str):
     print(f"[scraper] ERREUR : {message}", file=sys.stderr)
 
 
+def parse_subjects(grades_data: list) -> list[dict]:
+    subjects = []
+    for subject in grades_data:
+        name = subject.get("descriptionMatiere", "").strip()
+        etapes = subject.get("etapes", [])
+        if not etapes or not name:
+            continue
+        latest = max(etapes, key=lambda e: e.get("sequenceEtapeAnnee", 0))
+        res = latest.get("resultat") or {}
+        valeur = res.get("valeur")
+        note_max = res.get("noteMaximale") or 100
+        if valeur is None:
+            continue
+        try:
+            grade = float(str(valeur).replace(",", "."))
+            if note_max and note_max != 100:
+                grade = grade / note_max * 100
+            subjects.append({
+                "name": name,
+                "grade": round(grade, 1),
+                "weight": 1.0,
+                "period": f"Étape {latest.get('sequenceEtapeAnnee', '?')}",
+            })
+        except (ValueError, TypeError):
+            pass
+    return subjects
+
+
 async def scrape() -> list[dict]:
     email = os.getenv("PORTAL_EMAIL")
     password = os.getenv("PORTAL_PASSWORD")
 
     if not email or not password:
         raise ValueError("PORTAL_EMAIL et PORTAL_PASSWORD requis")
+
+    grades_data: list = []
+
+    async def on_response(response):
+        url = response.url
+        ct = response.headers.get("content-type", "")
+        if "matieresEleves" in url and "json" in ct:
+            try:
+                data = await response.json()
+                if isinstance(data, list):
+                    grades_data.extend(data)
+            except Exception:
+                pass
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
@@ -51,56 +92,49 @@ async def scrape() -> list[dict]:
             viewport={"width": 1280, "height": 800},
         )
         page = await context.new_page()
+        page.on("response", on_response)
 
         try:
+            # ── Login ──────────────────────────────────────────────────────
             await page.goto("https://portailparents.ca/accueil/fr/", timeout=60000)
             await page.wait_for_load_state("networkidle", timeout=15000)
 
-            # Cliquer sur "Se connecter"
             await page.click("text=Se connecter", timeout=10000)
             await page.wait_for_load_state("networkidle", timeout=15000)
 
-            # Remplir le formulaire de login (type() pour éviter détection bot)
             await page.click("#email")
             await page.type("#email", email, delay=60)
             await page.click("#password")
             await page.type("#password", password, delay=60)
             await page.click("button#next")
 
-            # Attendre la sortie du flux OAuth B2C
             await page.wait_for_function(
                 "!window.location.href.includes('mozaikb2c.b2clogin.com')",
                 timeout=45000,
             )
             await page.wait_for_load_state("networkidle", timeout=20000)
+            print(f"[scraper] Connecté — {page.url}")
 
-            # Naviguer vers les résultats
-            await page.goto(
-                "https://portailparents.ca/resultats/resultatsCourants/",
-                timeout=30000,
-            )
+            # ── Naviguer vers Résultats ────────────────────────────────────
+            el = await page.query_selector("a[href*='resultats']")
+            if not el:
+                raise RuntimeError("Lien Résultats introuvable dans le menu")
+
+            await el.click()
             await page.wait_for_load_state("networkidle", timeout=30000)
-            await page.wait_for_timeout(5000)
-
-            # Extraire les notes (adapter les sélecteurs selon la structure réelle)
-            subjects = []
-            rows = await page.query_selector_all("table tr")
-            for row in rows:
-                cells = await row.query_selector_all("td")
-                if len(cells) >= 2:
-                    name = (await cells[0].inner_text()).strip()
-                    grade_text = (await cells[1].inner_text()).strip().replace(",", ".")
-                    try:
-                        grade = float(grade_text.rstrip("%"))
-                        subjects.append({"name": name, "grade": grade, "weight": 1.0, "period": "S1"})
-                    except ValueError:
-                        pass
-
-            return subjects
+            await page.wait_for_timeout(8000)  # laisser la SPA charger les API calls
+            print(f"[scraper] Page résultats — {page.url}")
 
         finally:
             await context.close()
             await browser.close()
+
+    if not grades_data:
+        raise RuntimeError("Aucune donnée de notes interceptée (matieresEleves API vide)")
+
+    subjects = parse_subjects(grades_data)
+    print(f"[scraper] {len(subjects)} matières extraites")
+    return subjects
 
 
 async def main():
@@ -111,7 +145,7 @@ async def main():
         subjects = await scrape()
 
         if not subjects:
-            write_error("Aucune note trouvée — vérifier les sélecteurs CSS du portail")
+            write_error("Aucune note parsée — vérifier la structure API matieresEleves")
             sys.exit(1)
 
         payload = {
@@ -121,7 +155,7 @@ async def main():
         }
         (DATA_DIR / f"grades_{date_str}.json").write_text(json.dumps(payload, indent=2))
         (DATA_DIR / "latest.json").write_text(json.dumps(payload, indent=2))
-        print(f"[scraper] OK — {len(subjects)} matières extraites")
+        print(f"[scraper] OK — {len(subjects)} matières → data/latest.json")
 
     except PlaywrightTimeout as e:
         write_error(f"Timeout : {e}")
