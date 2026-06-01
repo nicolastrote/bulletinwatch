@@ -17,7 +17,45 @@ TREND_ICON = {"up": "↑", "down": "↓", "stable": "→", "insufficient_data": 
 STATUS_ICON = {"on_track": "✅", "at_risk": "⚠️", "failing": "❌"}
 
 
-def render_html(analysis: dict) -> str:
+def grade_color(grade: float) -> str:
+    if grade >= 70:
+        return "color-green"
+    if grade >= 60:
+        return "color-orange"
+    return "color-red"
+
+
+def render_etapes_section(subjects_raw: list) -> str:
+    if not subjects_raw:
+        return ""
+    all_seqs = sorted({e["seq"] for s in subjects_raw for e in s.get("etapes_detail", [])})
+    if len(all_seqs) <= 1:
+        return ""
+
+    header_cells = "".join(f"<th>Étape {seq}</th>" for seq in all_seqs)
+    rows = ""
+    for s in subjects_raw:
+        by_seq = {e["seq"]: e["grade"] for e in s.get("etapes_detail", [])}
+        cells = ""
+        for seq in all_seqs:
+            if seq in by_seq:
+                g = by_seq[seq]
+                cells += f'<td class="{grade_color(g)}">{g:.1f}%</td>'
+            else:
+                cells += '<td class="color-muted">—</td>'
+        rows += f"<tr><td>{s['name']}</td>{cells}</tr>"
+
+    return f"""
+  <div class="card">
+    <h2>Progression par étape</h2>
+    <table>
+      <thead><tr><th>Matière</th>{header_cells}</tr></thead>
+      <tbody>{rows}</tbody>
+    </table>
+  </div>"""
+
+
+def render_html(analysis: dict, subjects_raw: list | None = None) -> str:
     alert_level = analysis.get("alert_level", "ok")
     subjects = analysis.get("subjects", [])
     global_avg = analysis.get("global_average", 0)
@@ -138,6 +176,7 @@ def render_html(analysis: dict) -> str:
       <tbody>{rows}</tbody>
     </table>
   </div>
+  {render_etapes_section(subjects_raw or [])}
   <footer>Dernière mise à jour : {updated} &nbsp;·&nbsp; Rafraîchissement auto toutes les heures</footer>
 </body>
 </html>"""
@@ -150,7 +189,15 @@ def main():
         sys.exit(1)
 
     analysis = json.loads(analysis_path.read_text())
-    html = render_html(analysis)
+
+    subjects_raw = []
+    latest_path = DATA_DIR / "latest.json"
+    if latest_path.exists():
+        latest = json.loads(latest_path.read_text())
+        if latest.get("status") == "success":
+            subjects_raw = latest.get("subjects", [])
+
+    html = render_html(analysis, subjects_raw)
     (DOCS_DIR / "index.html").write_text(html, encoding="utf-8")
     print(f"[reporter] OK — docs/index.html généré ({len(html)} chars)")
 

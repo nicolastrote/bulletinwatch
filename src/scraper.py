@@ -64,18 +64,35 @@ def parse_subjects(grades_data: list, units_by_code: dict) -> list[dict]:
         res = target.get("resultat") or {}
         valeur = res.get("valeur")
         note_max = res.get("noteMaximale") or 100
+
+        def to_pct(v, nm):
+            g = float(str(v).replace(",", "."))
+            return round(g / nm * 100 if nm and nm != 100 else g, 1)
+
         try:
-            grade = float(str(valeur).replace(",", "."))
-            if note_max and note_max != 100:
-                grade = grade / note_max * 100
-            subjects.append({
-                "name": name,
-                "grade": round(grade, 1),
-                "weight": float(units_by_code.get(code, 2)),
-                "period": f"Étape {target.get('sequenceEtapeAnnee', '?')}",
-            })
+            grade = to_pct(valeur, note_max)
         except (ValueError, TypeError):
-            pass
+            continue
+
+        # Détail de toutes les étapes disponibles (pour le graphique de progression)
+        etapes_detail = []
+        for e in sorted(etapes_with_valeur, key=lambda e: e.get("sequenceEtapeAnnee", 0)):
+            r = e.get("resultat") or {}
+            try:
+                etapes_detail.append({
+                    "seq": e.get("sequenceEtapeAnnee"),
+                    "grade": to_pct(r.get("valeur"), r.get("noteMaximale") or 100),
+                })
+            except (ValueError, TypeError):
+                pass
+
+        subjects.append({
+            "name": name,
+            "grade": grade,
+            "weight": float(units_by_code.get(code, 2)),
+            "period": f"Étape {target.get('sequenceEtapeAnnee', '?')}",
+            "etapes_detail": etapes_detail,
+        })
     return subjects
 
 
