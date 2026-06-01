@@ -30,8 +30,44 @@ def write_error(message: str):
     print(f"[scraper] ERREUR : {message}", file=sys.stderr)
 
 
-def parse_subjects(grades_data: list, units_by_code: dict) -> list[dict]:
-    # Déterminer l'étape courante = max séquence qui a au moins une valeur non-null
+def to_pct(v, nm) -> float:
+    g = float(str(v).replace(",", "."))
+    nm = float(nm) if nm else 100
+    return round(g / nm * 100 if nm != 100 else g, 1)
+
+
+def e3_from_travaux(code: str, travaux: list) -> float | None:
+    """Calcule la note courante d'Étape 3 depuis les travaux visibles parents."""
+    items = [
+        t for t in travaux
+        if t.get("codeMatiere") == code
+        and str(t.get("codeEtape", "")) == "3"
+        and (t.get("resultat") or {}).get("valeur") is not None
+    ]
+    if not items:
+        return None
+    total_pts = total_max = 0.0
+    for t in items:
+        r = t.get("resultat") or {}
+        try:
+            total_pts += float(str(r["valeur"]).replace(",", "."))
+            total_max += float(r.get("noteMaximale") or 100)
+        except (ValueError, TypeError):
+            pass
+    return round(total_pts / total_max * 100, 1) if total_max else None
+
+
+def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> list[dict]:
+    # Construire les notes Étape 3 depuis les travaux (en cours, pas encore publiées)
+    e3_by_code = {}
+    all_codes = {s.get("codeMatiere") for s in grades_data}
+    for code in all_codes:
+        g = e3_from_travaux(code, travaux)
+        if g is not None:
+            e3_by_code[code] = g
+
+    # Déterminer l'étape courante = max séquence avec valeur non-null (matieresEleves)
+    # puis étendre avec Étape 3 si des travaux sont disponibles
     current_seq = 0
     for subject in grades_data:
         for etape in subject.get("etapes", []):
@@ -40,41 +76,23 @@ def parse_subjects(grades_data: list, units_by_code: dict) -> list[dict]:
                 seq = etape.get("sequenceEtapeAnnee", 0)
                 if seq > current_seq:
                     current_seq = seq
+    if e3_by_code:
+        current_seq = max(current_seq, 3)
 
     subjects = []
     for subject in grades_data:
         name = subject.get("descriptionMatiere", "").strip()
         code = subject.get("codeMatiere", "")
         etapes = subject.get("etapes", [])
-        if not etapes or not name:
+        if not name:
             continue
 
         etapes_with_valeur = [
             e for e in etapes
             if (e.get("resultat") or {}).get("valeur") is not None
         ]
-        if not etapes_with_valeur:
-            continue
 
-        target = next(
-            (e for e in etapes_with_valeur if e.get("sequenceEtapeAnnee") == current_seq),
-            max(etapes_with_valeur, key=lambda e: e.get("sequenceEtapeAnnee", 0)),
-        )
-
-        res = target.get("resultat") or {}
-        valeur = res.get("valeur")
-        note_max = res.get("noteMaximale") or 100
-
-        def to_pct(v, nm):
-            g = float(str(v).replace(",", "."))
-            return round(g / nm * 100 if nm and nm != 100 else g, 1)
-
-        try:
-            grade = to_pct(valeur, note_max)
-        except (ValueError, TypeError):
-            continue
-
-        # Détail de toutes les étapes disponibles (pour le graphique de progression)
+        # Construire le détail de toutes les étapes (publiées + Étape 3 en cours)
         etapes_detail = []
         for e in sorted(etapes_with_valeur, key=lambda e: e.get("sequenceEtapeAnnee", 0)):
             r = e.get("resultat") or {}
@@ -82,15 +100,33 @@ def parse_subjects(grades_data: list, units_by_code: dict) -> list[dict]:
                 etapes_detail.append({
                     "seq": e.get("sequenceEtapeAnnee"),
                     "grade": to_pct(r.get("valeur"), r.get("noteMaximale") or 100),
+                    "source": "publiée",
                 })
             except (ValueError, TypeError):
                 pass
+        if code in e3_by_code and not any(d["seq"] == 3 for d in etapes_detail):
+            etapes_detail.append({"seq": 3, "grade": e3_by_code[code], "source": "en cours"})
+
+        if not etapes_detail:
+            continue
+
+        # Note courante = Étape 3 si disponible, sinon dernière publiée
+        if current_seq == 3 and code in e3_by_code:
+            grade = e3_by_code[code]
+            period = "Étape 3 (en cours)"
+        else:
+            target = next(
+                (d for d in reversed(etapes_detail) if d["seq"] == current_seq),
+                max(etapes_detail, key=lambda d: d["seq"]),
+            )
+            grade = target["grade"]
+            period = f"Étape {target['seq']}" + (" (en cours)" if target.get("source") == "en cours" else "")
 
         subjects.append({
             "name": name,
             "grade": grade,
             "weight": float(units_by_code.get(code, 2)),
-            "period": f"Étape {target.get('sequenceEtapeAnnee', '?')}",
+            "period": period,
             "etapes_detail": etapes_detail,
         })
     return subjects
@@ -105,6 +141,7 @@ async def scrape() -> list[dict]:
 
     grades_data: list = []
     matieres_meta: list = []
+    travaux_data: list = []
 
     async def on_response(response):
         url = response.url
@@ -120,6 +157,10 @@ async def scrape() -> list[dict]:
                 data = await response.json()
                 if isinstance(data, list):
                     matieres_meta.extend(data)
+            elif "travaux/visibleParentEleve" in url:
+                data = await response.json()
+                if isinstance(data, list):
+                    travaux_data.extend(data)
         except Exception:
             pass
 
@@ -183,7 +224,10 @@ async def scrape() -> list[dict]:
     else:
         print("[scraper] Avertissement : unités non capturées, poids = 2 par défaut")
 
-    subjects = parse_subjects(grades_data, units_by_code)
+    e3_codes = {t.get("codeMatiere") for t in travaux_data if str(t.get("codeEtape", "")) == "3"}
+    print(f"[scraper] Travaux Étape 3 disponibles pour : {e3_codes or 'aucune'}")
+
+    subjects = parse_subjects(grades_data, units_by_code, travaux_data)
     print(f"[scraper] {len(subjects)} matières extraites")
     return subjects
 
