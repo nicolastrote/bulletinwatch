@@ -56,7 +56,7 @@ async def main():
                     body = await response.json()
                     path = url.split("/api/")[1] if "/api/" in url else url
                     # Dump complet pour les endpoints clés
-                    if any(k in url for k in ("matieresEleves", "informationsEvaluation", "travaux")):
+                    if any(k in url for k in ("matieresEleves", "informationsEvaluation", "travaux", "matieres/eleves", "donneesAnnuelles")):
                         print(f"\n[API FULL] {path}")
                         print(json.dumps(body, ensure_ascii=False, indent=2)[:3000])
                     else:
