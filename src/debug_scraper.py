@@ -55,8 +55,13 @@ async def main():
                 try:
                     body = await response.json()
                     path = url.split("/api/")[1] if "/api/" in url else url
-                    print(f"[API JSON] {path}")
-                    print(f"  → {json.dumps(body, ensure_ascii=False)[:500]}")
+                    # Dump complet pour les endpoints clés
+                    if any(k in url for k in ("matieresEleves", "informationsEvaluation", "travaux")):
+                        print(f"\n[API FULL] {path}")
+                        print(json.dumps(body, ensure_ascii=False, indent=2)[:3000])
+                    else:
+                        print(f"[API JSON] {path}")
+                        print(f"  → {json.dumps(body, ensure_ascii=False)[:300]}")
                 except Exception:
                     pass
 
