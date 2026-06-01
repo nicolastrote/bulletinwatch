@@ -30,7 +30,7 @@ def write_error(message: str):
     print(f"[scraper] ERREUR : {message}", file=sys.stderr)
 
 
-def parse_subjects(grades_data: list) -> list[dict]:
+def parse_subjects(grades_data: list, units_by_code: dict) -> list[dict]:
     # Déterminer l'étape courante = max séquence qui a au moins une valeur non-null
     current_seq = 0
     for subject in grades_data:
@@ -44,11 +44,11 @@ def parse_subjects(grades_data: list) -> list[dict]:
     subjects = []
     for subject in grades_data:
         name = subject.get("descriptionMatiere", "").strip()
+        code = subject.get("codeMatiere", "")
         etapes = subject.get("etapes", [])
         if not etapes or not name:
             continue
 
-        # Chercher l'étape courante d'abord, sinon fallback sur la dernière disponible
         etapes_with_valeur = [
             e for e in etapes
             if (e.get("resultat") or {}).get("valeur") is not None
@@ -56,7 +56,6 @@ def parse_subjects(grades_data: list) -> list[dict]:
         if not etapes_with_valeur:
             continue
 
-        # Préférer l'étape courante, sinon la plus récente avec valeur
         target = next(
             (e for e in etapes_with_valeur if e.get("sequenceEtapeAnnee") == current_seq),
             max(etapes_with_valeur, key=lambda e: e.get("sequenceEtapeAnnee", 0)),
@@ -72,7 +71,7 @@ def parse_subjects(grades_data: list) -> list[dict]:
             subjects.append({
                 "name": name,
                 "grade": round(grade, 1),
-                "weight": 1.0,
+                "weight": float(units_by_code.get(code, 2)),
                 "period": f"Étape {target.get('sequenceEtapeAnnee', '?')}",
             })
         except (ValueError, TypeError):
@@ -88,17 +87,24 @@ async def scrape() -> list[dict]:
         raise ValueError("PORTAL_EMAIL et PORTAL_PASSWORD requis")
 
     grades_data: list = []
+    matieres_meta: list = []
 
     async def on_response(response):
         url = response.url
         ct = response.headers.get("content-type", "")
-        if "matieresEleves" in url and "json" in ct:
-            try:
+        if "json" not in ct:
+            return
+        try:
+            if "matieresEleves" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     grades_data.extend(data)
-            except Exception:
-                pass
+            elif "apprentissage" in url and "matieres/eleves" in url:
+                data = await response.json()
+                if isinstance(data, list):
+                    matieres_meta.extend(data)
+        except Exception:
+            pass
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
@@ -154,7 +160,13 @@ async def scrape() -> list[dict]:
     if not grades_data:
         raise RuntimeError("Aucune donnée de notes interceptée (matieresEleves API vide)")
 
-    subjects = parse_subjects(grades_data)
+    units_by_code = {m["codeMatiere"]: m["nombreUnites"] for m in matieres_meta if "codeMatiere" in m and "nombreUnites" in m}
+    if units_by_code:
+        print(f"[scraper] Unités par matière : {units_by_code}")
+    else:
+        print("[scraper] Avertissement : unités non capturées, poids = 2 par défaut")
+
+    subjects = parse_subjects(grades_data, units_by_code)
     print(f"[scraper] {len(subjects)} matières extraites")
     return subjects
 
