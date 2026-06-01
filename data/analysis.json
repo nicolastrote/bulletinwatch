@@ -1,33 +1,33 @@
 {
-  "analysed_at": "2026-06-01T01:38:20.492129+00:00",
-  "global_average": 69.8,
+  "analysed_at": "2026-06-01T01:54:49.928844+00:00",
+  "global_average": 69.3,
   "session_status": "failing",
   "alert_level": "critical",
   "subjects": [
     {
       "name": "Éducation physique et à la santé",
-      "grade": 85.0,
+      "grade": 81.8,
       "status": "on_track",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "down",
+      "trend_delta": -3.2,
       "at_risk": false,
       "data_points": 2
     },
     {
       "name": "Science et technologie",
-      "grade": 79.0,
+      "grade": 85.7,
       "status": "on_track",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "up",
+      "trend_delta": 6.7,
       "at_risk": false,
       "data_points": 2
     },
     {
       "name": "Mathématique",
-      "grade": 76.0,
+      "grade": 81.2,
       "status": "on_track",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "up",
+      "trend_delta": 5.2,
       "at_risk": false,
       "data_points": 2
     },
@@ -42,57 +42,57 @@
     },
     {
       "name": "Histoire et éducation à la citoyenneté",
-      "grade": 65.0,
-      "status": "at_risk",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "grade": 45.1,
+      "status": "failing",
+      "trend": "down",
+      "trend_delta": -19.9,
       "at_risk": true,
       "data_points": 2
     },
     {
       "name": "Géographie",
-      "grade": 75.0,
+      "grade": 77.1,
       "status": "on_track",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "up",
+      "trend_delta": 2.1,
       "at_risk": false,
       "data_points": 2
     },
     {
       "name": "Français, langue d'enseignement",
-      "grade": 55.0,
+      "grade": 51.4,
       "status": "failing",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "down",
+      "trend_delta": -3.6,
       "at_risk": true,
       "data_points": 2
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
-      "grade": 77.0,
+      "grade": 81.3,
       "status": "on_track",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "up",
+      "trend_delta": 4.3,
       "at_risk": false,
       "data_points": 2
     },
     {
       "name": "Arts plastiques",
-      "grade": 63.0,
+      "grade": 62.4,
       "status": "at_risk",
       "trend": "stable",
-      "trend_delta": 0.0,
+      "trend_delta": -0.6,
       "at_risk": true,
       "data_points": 2
     }
   ],
   "subjects_at_risk": [
-    "Histoire et éducation à la citoyenneté",
     "Arts plastiques"
   ],
   "subjects_failing": [
+    "Histoire et éducation à la citoyenneté",
     "Français, langue d'enseignement"
   ],
-  "insight": "1 matière(s) en échec : Français, langue d'enseignement. Action requise.",
+  "insight": "2 matière(s) en échec : Histoire et éducation à la citoyenneté, Français, langue d'enseignement. Action requise.",
   "data_points": 2
 }

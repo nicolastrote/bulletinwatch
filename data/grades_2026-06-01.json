@@ -1,48 +1,68 @@
 {
-  "scraped_at": "2026-06-01T01:37:59.013631+00:00",
+  "scraped_at": "2026-06-01T01:54:29.894099+00:00",
   "status": "success",
   "subjects": [
     {
       "name": "\u00c9ducation physique et \u00e0 la sant\u00e9",
-      "grade": 85.0,
+      "grade": 81.8,
       "weight": 2.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 2,
-          "grade": 85.0
+          "grade": 85.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 81.8,
+          "source": "en cours"
         }
       ]
     },
     {
       "name": "Science et technologie",
-      "grade": 79.0,
+      "grade": 85.7,
       "weight": 4.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
-          "grade": 80.0
+          "grade": 80.0,
+          "source": "publi\u00e9e"
         },
         {
           "seq": 2,
-          "grade": 79.0
+          "grade": 79.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 85.7,
+          "source": "en cours"
         }
       ]
     },
     {
       "name": "Math\u00e9matique",
-      "grade": 76.0,
+      "grade": 81.2,
       "weight": 6.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
-          "grade": 66.0
+          "grade": 66.0,
+          "source": "publi\u00e9e"
         },
         {
           "seq": 2,
-          "grade": 76.0
+          "grade": 76.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 81.2,
+          "source": "en cours"
         }
       ]
     },
@@ -54,79 +74,113 @@
       "etapes_detail": [
         {
           "seq": 2,
-          "grade": 75.0
+          "grade": 75.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
     {
       "name": "Histoire et \u00e9ducation \u00e0 la citoyennet\u00e9",
-      "grade": 65.0,
+      "grade": 45.1,
       "weight": 3.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 2,
-          "grade": 65.0
+          "grade": 65.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 45.1,
+          "source": "en cours"
         }
       ]
     },
     {
       "name": "G\u00e9ographie",
-      "grade": 75.0,
+      "grade": 77.1,
       "weight": 3.0,
-      "period": "\u00c9tape 1",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
-          "grade": 75.0
+          "grade": 75.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 77.1,
+          "source": "en cours"
         }
       ]
     },
     {
       "name": "Fran\u00e7ais, langue d'enseignement",
-      "grade": 55.0,
+      "grade": 51.4,
       "weight": 8.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
-          "grade": 79.0
+          "grade": 79.0,
+          "source": "publi\u00e9e"
         },
         {
           "seq": 2,
-          "grade": 55.0
+          "grade": 55.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 51.4,
+          "source": "en cours"
         }
       ]
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
-      "grade": 77.0,
+      "grade": 81.3,
       "weight": 4.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
-          "grade": 75.0
+          "grade": 75.0,
+          "source": "publi\u00e9e"
         },
         {
           "seq": 2,
-          "grade": 77.0
+          "grade": 77.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 81.3,
+          "source": "en cours"
         }
       ]
     },
     {
       "name": "Arts plastiques",
-      "grade": 63.0,
+      "grade": 62.4,
       "weight": 4.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
-          "grade": 91.0
+          "grade": 91.0,
+          "source": "publi\u00e9e"
         },
         {
           "seq": 2,
-          "grade": 63.0
+          "grade": 63.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 62.4,
+          "source": "en cours"
         }
       ]
     }
