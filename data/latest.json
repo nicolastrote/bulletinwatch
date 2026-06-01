@@ -1,59 +1,59 @@
 {
-  "scraped_at": "2026-06-01T01:18:05.608909+00:00",
+  "scraped_at": "2026-06-01T01:32:12.959287+00:00",
   "status": "success",
   "subjects": [
     {
       "name": "\u00c9ducation physique et \u00e0 la sant\u00e9",
       "grade": 85.0,
-      "weight": 1.0,
+      "weight": 2.0,
       "period": "\u00c9tape 2"
     },
     {
       "name": "Science et technologie",
       "grade": 79.0,
-      "weight": 1.0,
+      "weight": 4.0,
       "period": "\u00c9tape 2"
     },
     {
       "name": "Math\u00e9matique",
       "grade": 76.0,
-      "weight": 1.0,
+      "weight": 6.0,
       "period": "\u00c9tape 2"
     },
     {
       "name": "Culture et citoyennet\u00e9 qu\u00e9b\u00e9coise",
       "grade": 75.0,
-      "weight": 1.0,
+      "weight": 2.0,
       "period": "\u00c9tape 2"
     },
     {
       "name": "Histoire et \u00e9ducation \u00e0 la citoyennet\u00e9",
       "grade": 65.0,
-      "weight": 1.0,
+      "weight": 3.0,
       "period": "\u00c9tape 2"
     },
     {
       "name": "G\u00e9ographie",
       "grade": 75.0,
-      "weight": 1.0,
+      "weight": 3.0,
       "period": "\u00c9tape 1"
     },
     {
       "name": "Fran\u00e7ais, langue d'enseignement",
       "grade": 55.0,
-      "weight": 1.0,
+      "weight": 8.0,
       "period": "\u00c9tape 2"
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
       "grade": 77.0,
-      "weight": 1.0,
+      "weight": 4.0,
       "period": "\u00c9tape 2"
     },
     {
       "name": "Arts plastiques",
       "grade": 63.0,
-      "weight": 1.0,
+      "weight": 4.0,
       "period": "\u00c9tape 2"
     }
   ]
