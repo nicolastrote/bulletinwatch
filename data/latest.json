@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-06-01T01:54:29.894099+00:00",
+  "scraped_at": "2026-06-01T18:36:57.210976+00:00",
   "status": "success",
   "subjects": [
     {
@@ -163,7 +163,7 @@
     },
     {
       "name": "Arts plastiques",
-      "grade": 62.4,
+      "grade": 62.6,
       "weight": 4.0,
       "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
@@ -179,7 +179,7 @@
         },
         {
           "seq": 3,
-          "grade": 62.4,
+          "grade": 62.6,
           "source": "en cours"
         }
       ]

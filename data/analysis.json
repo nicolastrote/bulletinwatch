@@ -1,6 +1,6 @@
 {
-  "analysed_at": "2026-06-01T01:54:49.928844+00:00",
-  "global_average": 69.3,
+  "analysed_at": "2026-06-01T18:37:14.311528+00:00",
+  "global_average": 69.4,
   "session_status": "failing",
   "alert_level": "critical",
   "subjects": [
@@ -78,10 +78,10 @@
     },
     {
       "name": "Arts plastiques",
-      "grade": 62.4,
+      "grade": 62.6,
       "status": "at_risk",
       "trend": "stable",
-      "trend_delta": -0.6,
+      "trend_delta": -0.4,
       "at_risk": true,
       "data_points": 2
     }
