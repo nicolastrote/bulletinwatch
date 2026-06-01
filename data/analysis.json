@@ -1,5 +1,5 @@
 {
-  "analysed_at": "2026-05-31T23:16:29.492946+00:00",
+  "analysed_at": "2026-06-01T01:18:24.226209+00:00",
   "global_average": 72.2,
   "session_status": "failing",
   "alert_level": "critical",
@@ -8,82 +8,82 @@
       "name": "Éducation physique et à la santé",
       "grade": 85.0,
       "status": "on_track",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Science et technologie",
       "grade": 79.0,
       "status": "on_track",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Mathématique",
       "grade": 76.0,
       "status": "on_track",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Culture et citoyenneté québécoise",
       "grade": 75.0,
       "status": "on_track",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Histoire et éducation à la citoyenneté",
       "grade": 65.0,
       "status": "at_risk",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Géographie",
       "grade": 75.0,
       "status": "on_track",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Français, langue d'enseignement",
       "grade": 55.0,
       "status": "failing",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
       "grade": 77.0,
       "status": "on_track",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 1
+      "data_points": 2
     },
     {
       "name": "Arts plastiques",
       "grade": 63.0,
       "status": "at_risk",
-      "trend": "insufficient_data",
+      "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 1
+      "data_points": 2
     }
   ],
   "subjects_at_risk": [
@@ -94,5 +94,5 @@
     "Français, langue d'enseignement"
   ],
   "insight": "1 matière(s) en échec : Français, langue d'enseignement. Action requise.",
-  "data_points": 1
+  "data_points": 2
 }
