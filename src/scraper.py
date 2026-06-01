@@ -31,18 +31,40 @@ def write_error(message: str):
 
 
 def parse_subjects(grades_data: list) -> list[dict]:
+    # Déterminer l'étape courante = max séquence qui a au moins une valeur non-null
+    current_seq = 0
+    for subject in grades_data:
+        for etape in subject.get("etapes", []):
+            res = etape.get("resultat") or {}
+            if res.get("valeur") is not None:
+                seq = etape.get("sequenceEtapeAnnee", 0)
+                if seq > current_seq:
+                    current_seq = seq
+
     subjects = []
     for subject in grades_data:
         name = subject.get("descriptionMatiere", "").strip()
         etapes = subject.get("etapes", [])
         if not etapes or not name:
             continue
-        latest = max(etapes, key=lambda e: e.get("sequenceEtapeAnnee", 0))
-        res = latest.get("resultat") or {}
+
+        # Chercher l'étape courante d'abord, sinon fallback sur la dernière disponible
+        etapes_with_valeur = [
+            e for e in etapes
+            if (e.get("resultat") or {}).get("valeur") is not None
+        ]
+        if not etapes_with_valeur:
+            continue
+
+        # Préférer l'étape courante, sinon la plus récente avec valeur
+        target = next(
+            (e for e in etapes_with_valeur if e.get("sequenceEtapeAnnee") == current_seq),
+            max(etapes_with_valeur, key=lambda e: e.get("sequenceEtapeAnnee", 0)),
+        )
+
+        res = target.get("resultat") or {}
         valeur = res.get("valeur")
         note_max = res.get("noteMaximale") or 100
-        if valeur is None:
-            continue
         try:
             grade = float(str(valeur).replace(",", "."))
             if note_max and note_max != 100:
@@ -51,7 +73,7 @@ def parse_subjects(grades_data: list) -> list[dict]:
                 "name": name,
                 "grade": round(grade, 1),
                 "weight": 1.0,
-                "period": f"Étape {latest.get('sequenceEtapeAnnee', '?')}",
+                "period": f"Étape {target.get('sequenceEtapeAnnee', '?')}",
             })
         except (ValueError, TypeError):
             pass
