@@ -96,6 +96,12 @@ def parse_recent_grades(travaux: list, grades_data: list) -> list[dict]:
         })
 
     entries.sort(key=lambda e: (e["date"] or "0000-00-00"), reverse=True)
+
+    # Debug : log les clés du premier travail pour identifier le champ date
+    graded = [t for t in travaux if (t.get("resultat") or {}).get("valeur") is not None]
+    if graded:
+        print(f"[scraper] travaux[0] keys : {list(graded[0].keys())}")
+
     return entries[:10]
 
 
