@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-06-02T23:00:45.630227+00:00",
+  "scraped_at": "2026-06-02T23:53:54.106862+00:00",
   "status": "success",
   "subjects": [
     {
@@ -183,6 +183,68 @@
           "source": "en cours"
         }
       ]
+    }
+  ],
+  "recent_grades": [
+    {
+      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
+      "grade": 75.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
+      "grade": 83.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
+      "grade": 82.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
+      "grade": 85.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "Science et technologie",
+      "grade": 95.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "Science et technologie",
+      "grade": 75.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "Science et technologie",
+      "grade": 72.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "Science et technologie",
+      "grade": 88.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "Science et technologie",
+      "grade": 86.0,
+      "date": null,
+      "label": ""
+    },
+    {
+      "matiere": "Science et technologie",
+      "grade": 98.0,
+      "date": null,
+      "label": ""
     }
   ]
 }
