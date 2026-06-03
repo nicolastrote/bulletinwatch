@@ -16,6 +16,35 @@ THRESHOLD_SAFE = 70.0
 THRESHOLD_PASS = 60.0
 
 
+def recent_grade_changes(limit: int = 10) -> list[dict]:
+    files = sorted(glob.glob(str(DATA_DIR / "grades_*.json")))
+    timeline = []
+    for f in files:
+        data = json.loads(Path(f).read_text())
+        if data.get("status") != "success":
+            continue
+        date = Path(f).stem.replace("grades_", "")
+        grades = {s["name"]: s["grade"] for s in data.get("subjects", [])}
+        timeline.append((date, grades))
+
+    changes = []
+    for i in range(1, len(timeline)):
+        date, curr = timeline[i]
+        _, prev = timeline[i - 1]
+        for subject, grade in curr.items():
+            prev_grade = prev.get(subject)
+            if prev_grade is not None and grade != prev_grade:
+                changes.append({
+                    "matiere": subject,
+                    "grade": grade,
+                    "grade_prev": prev_grade,
+                    "date": date,
+                })
+
+    changes.sort(key=lambda c: c["date"], reverse=True)
+    return changes[:limit]
+
+
 def load_history(subject_name: str) -> list[float]:
     files = sorted(glob.glob(str(DATA_DIR / "grades_*.json")))
     grades = []
@@ -125,6 +154,7 @@ def main():
         "subjects_failing": failing,
         "insight": insight,
         "data_points": max((s["data_points"] for s in subjects_out), default=0),
+        "recent_grade_changes": recent_grade_changes(),
     }
 
     (DATA_DIR / "analysis.json").write_text(json.dumps(analysis, indent=2, ensure_ascii=False))

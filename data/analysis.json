@@ -1,5 +1,5 @@
 {
-  "analysed_at": "2026-06-02T23:54:16.226062+00:00",
+  "analysed_at": "2026-06-03T00:02:45.738904+00:00",
   "global_average": 69.4,
   "session_status": "failing",
   "alert_level": "critical",
@@ -94,5 +94,61 @@
     "Français, langue d'enseignement"
   ],
   "insight": "2 matière(s) en échec : Histoire et éducation à la citoyenneté, Français, langue d'enseignement. Action requise.",
-  "data_points": 3
+  "data_points": 3,
+  "recent_grade_changes": [
+    {
+      "matiere": "Mathématique",
+      "grade": 81.5,
+      "grade_prev": 81.2,
+      "date": "2026-06-02"
+    },
+    {
+      "matiere": "Éducation physique et à la santé",
+      "grade": 81.8,
+      "grade_prev": 85.0,
+      "date": "2026-06-01"
+    },
+    {
+      "matiere": "Science et technologie",
+      "grade": 85.7,
+      "grade_prev": 79.0,
+      "date": "2026-06-01"
+    },
+    {
+      "matiere": "Mathématique",
+      "grade": 81.2,
+      "grade_prev": 76.0,
+      "date": "2026-06-01"
+    },
+    {
+      "matiere": "Histoire et éducation à la citoyenneté",
+      "grade": 45.1,
+      "grade_prev": 65.0,
+      "date": "2026-06-01"
+    },
+    {
+      "matiere": "Géographie",
+      "grade": 77.1,
+      "grade_prev": 75.0,
+      "date": "2026-06-01"
+    },
+    {
+      "matiere": "Français, langue d'enseignement",
+      "grade": 51.4,
+      "grade_prev": 55.0,
+      "date": "2026-06-01"
+    },
+    {
+      "matiere": "Anglais, langue seconde - Programme de base",
+      "grade": 81.3,
+      "grade_prev": 77.0,
+      "date": "2026-06-01"
+    },
+    {
+      "matiere": "Arts plastiques",
+      "grade": 62.6,
+      "grade_prev": 63.0,
+      "date": "2026-06-01"
+    }
+  ]
 }
