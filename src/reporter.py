@@ -55,35 +55,32 @@ def render_etapes_section(subjects_raw: list) -> str:
   </div>"""
 
 
-def render_recent_grades_section(changes: list) -> str:
-    if not changes:
+def render_recent_grades_section(recent_grades: list) -> str:
+    if not recent_grades:
         return ""
 
     rows = ""
-    for c in changes:
-        grade = c.get("grade", 0)
-        grade_prev = c.get("grade_prev", grade)
+    for g in recent_grades:
+        grade = g.get("grade", 0)
         color = grade_color(grade)
-        delta = round(grade - grade_prev, 1)
-        delta_str = f"({delta:+.1f})" if delta != 0 else ""
-        delta_color = "color-green" if delta > 0 else "color-red"
         rows += f"""<tr>
-          <td>{c.get("matiere", "")}</td>
-          <td class="{color}"><strong>{grade:.1f}%</strong> <span class="{delta_color}" style="font-size:0.8rem">{delta_str}</span></td>
-          <td class="color-muted">{c.get("date", "—")}</td>
+          <td>{g.get("matiere", "")}</td>
+          <td class="color-muted" style="font-size:0.85rem">{g.get("label", "")}</td>
+          <td class="{color}"><strong>{grade:.1f}%</strong></td>
+          <td class="color-muted">{g.get("date", "—")}</td>
         </tr>"""
 
     return f"""
   <div class="card">
     <h2>Dernières notes</h2>
     <table>
-      <thead><tr><th>Matière</th><th>Note</th><th>Date</th></tr></thead>
+      <thead><tr><th>Matière</th><th>Évaluation</th><th>Note</th><th>Date</th></tr></thead>
       <tbody>{rows}</tbody>
     </table>
   </div>"""
 
 
-def render_html(analysis: dict, subjects_raw: list | None = None) -> str:
+def render_html(analysis: dict, subjects_raw: list | None = None, recent_grades: list | None = None) -> str:
     alert_level = analysis.get("alert_level", "ok")
     subjects = analysis.get("subjects", [])
     global_avg = analysis.get("global_average", 0)
@@ -205,7 +202,7 @@ def render_html(analysis: dict, subjects_raw: list | None = None) -> str:
     </table>
   </div>
   {render_etapes_section(subjects_raw or [])}
-  {render_recent_grades_section(analysis.get("recent_grade_changes", []))}
+  {render_recent_grades_section(recent_grades or [])}
   <footer>Dernière mise à jour : {updated} &nbsp;·&nbsp; Rafraîchissement auto toutes les heures</footer>
 </body>
 </html>"""
@@ -220,13 +217,15 @@ def main():
     analysis = json.loads(analysis_path.read_text())
 
     subjects_raw = []
+    recent_grades = []
     latest_path = DATA_DIR / "latest.json"
     if latest_path.exists():
         latest = json.loads(latest_path.read_text())
         if latest.get("status") == "success":
             subjects_raw = latest.get("subjects", [])
+            recent_grades = latest.get("recent_grades", [])
 
-    html = render_html(analysis, subjects_raw)
+    html = render_html(analysis, subjects_raw, recent_grades)
     (DOCS_DIR / "index.html").write_text(html, encoding="utf-8")
     print(f"[reporter] OK — docs/index.html généré ({len(html)} chars)")
 

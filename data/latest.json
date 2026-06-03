@@ -3,15 +3,15 @@
   "status": "success",
   "subjects": [
     {
-      "name": "\u00c9ducation physique et \u00e0 la sant\u00e9",
+      "name": "Éducation physique et à la santé",
       "grade": 81.8,
       "weight": 2.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 2,
           "grade": 85.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -24,17 +24,17 @@
       "name": "Science et technologie",
       "grade": 85.7,
       "weight": 4.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
           "grade": 80.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 2,
           "grade": 79.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -44,20 +44,20 @@
       ]
     },
     {
-      "name": "Math\u00e9matique",
+      "name": "Mathématique",
       "grade": 81.5,
       "weight": 6.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
           "grade": 66.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 2,
           "grade": 76.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -67,28 +67,28 @@
       ]
     },
     {
-      "name": "Culture et citoyennet\u00e9 qu\u00e9b\u00e9coise",
+      "name": "Culture et citoyenneté québécoise",
       "grade": 75.0,
       "weight": 2.0,
-      "period": "\u00c9tape 2",
+      "period": "Étape 2",
       "etapes_detail": [
         {
           "seq": 2,
           "grade": 75.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         }
       ]
     },
     {
-      "name": "Histoire et \u00e9ducation \u00e0 la citoyennet\u00e9",
+      "name": "Histoire et éducation à la citoyenneté",
       "grade": 45.1,
       "weight": 3.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 2,
           "grade": 65.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -98,15 +98,15 @@
       ]
     },
     {
-      "name": "G\u00e9ographie",
+      "name": "Géographie",
       "grade": 77.1,
       "weight": 3.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
           "grade": 75.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -116,20 +116,20 @@
       ]
     },
     {
-      "name": "Fran\u00e7ais, langue d'enseignement",
+      "name": "Français, langue d'enseignement",
       "grade": 51.4,
       "weight": 8.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
           "grade": 79.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 2,
           "grade": 55.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -142,17 +142,17 @@
       "name": "Anglais, langue seconde - Programme de base",
       "grade": 81.3,
       "weight": 4.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
           "grade": 75.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 2,
           "grade": 77.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -165,17 +165,17 @@
       "name": "Arts plastiques",
       "grade": 62.6,
       "weight": 4.0,
-      "period": "\u00c9tape 3 (en cours)",
+      "period": "Étape 3 (en cours)",
       "etapes_detail": [
         {
           "seq": 1,
           "grade": 91.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 2,
           "grade": 63.0,
-          "source": "publi\u00e9e"
+          "source": "publiée"
         },
         {
           "seq": 3,
@@ -187,64 +187,64 @@
   ],
   "recent_grades": [
     {
-      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
+      "matiere": "Arts plastiques",
+      "label": "Projet de fin d'année",
+      "grade": 65.0,
+      "date": "2026-05-27"
+    },
+    {
+      "matiere": "Histoire/éducation",
+      "label": "Évaluation mots de vocabulaire de l'année",
+      "grade": 57.6,
+      "date": "2026-05-25"
+    },
+    {
+      "matiere": "Mathématique",
+      "label": "Les 6 feuilles (CD2)",
+      "grade": 100.0,
+      "date": "2026-05-22"
+    },
+    {
+      "matiere": "Géographie",
+      "label": "Examen sur le territoire agricole",
+      "grade": 63.0,
+      "date": "2026-05-19"
+    },
+    {
+      "matiere": "Éducation physique",
+      "label": "Évaluation nutrition",
       "grade": 75.0,
-      "date": null,
-      "label": ""
+      "date": "2026-05-15"
     },
     {
-      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
-      "grade": 83.0,
-      "date": null,
-      "label": ""
-    },
-    {
-      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
-      "grade": 82.0,
-      "date": null,
-      "label": ""
-    },
-    {
-      "matiere": "\u00c9ducation physique et \u00e0 la sant\u00e9",
-      "grade": 85.0,
-      "date": null,
-      "label": ""
-    },
-    {
-      "matiere": "Science et technologie",
+      "matiere": "Science/technologie",
+      "label": "Examen 3",
       "grade": 95.0,
-      "date": null,
-      "label": ""
+      "date": "2026-05-15"
     },
     {
-      "matiere": "Science et technologie",
+      "matiere": "Anglais",
+      "label": "Snapshot - Listening activity",
       "grade": 75.0,
-      "date": null,
-      "label": ""
+      "date": "2026-05-15"
     },
     {
-      "matiere": "Science et technologie",
-      "grade": 72.0,
-      "date": null,
-      "label": ""
+      "matiere": "Mathématique",
+      "label": "Devoir: recherche de mesures manquantes",
+      "grade": 60.0,
+      "date": "2026-05-11"
     },
     {
-      "matiere": "Science et technologie",
-      "grade": 88.0,
-      "date": null,
-      "label": ""
+      "matiere": "Mathématique",
+      "label": "Examen chapitre 7",
+      "grade": 30.0,
+      "date": "2026-05-11"
     },
     {
-      "matiere": "Science et technologie",
-      "grade": 86.0,
-      "date": null,
-      "label": ""
-    },
-    {
-      "matiere": "Science et technologie",
-      "grade": 98.0,
-      "date": null,
-      "label": ""
+      "matiere": "Français",
+      "label": "Examen de lecture : LDT",
+      "grade": 53.3,
+      "date": "2026-05-11"
     }
   ]
 }

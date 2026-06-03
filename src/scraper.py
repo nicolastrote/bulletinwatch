@@ -57,6 +57,26 @@ def e3_from_travaux(code: str, travaux: list) -> float | None:
     return round(total_pts / total_max * 100, 1) if total_max else None
 
 
+def parse_recent_grades(travaux: list) -> list[dict]:
+    entries = []
+    for t in travaux:
+        r = t.get("resultat") or {}
+        if r.get("valeur") is None:
+            continue
+        try:
+            grade = to_pct(r["valeur"], r.get("noteMaximale") or 100)
+        except (ValueError, TypeError):
+            continue
+        entries.append({
+            "matiere": t.get("descriptionMatiere", "").strip(),
+            "label": t.get("descriptionTravail", "").strip(),
+            "grade": grade,
+            "date": t.get("dateTravail", ""),
+        })
+    entries.sort(key=lambda e: e["date"], reverse=True)
+    return entries[:10]
+
+
 def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> list[dict]:
     # Construire les notes Étape 3 depuis les travaux (en cours, pas encore publiées)
     e3_by_code = {}
@@ -228,8 +248,9 @@ async def scrape() -> list[dict]:
     print(f"[scraper] Travaux Étape 3 disponibles pour : {e3_codes or 'aucune'}")
 
     subjects = parse_subjects(grades_data, units_by_code, travaux_data)
-    print(f"[scraper] {len(subjects)} matières extraites")
-    return subjects
+    recent_grades = parse_recent_grades(travaux_data)
+    print(f"[scraper] {len(subjects)} matières extraites, {len(recent_grades)} notes récentes")
+    return subjects, recent_grades
 
 
 async def main():
@@ -237,7 +258,7 @@ async def main():
     date_str = now.strftime("%Y-%m-%d")
 
     try:
-        subjects = await scrape()
+        subjects, recent_grades = await scrape()
 
         if not subjects:
             write_error("Aucune note parsée — vérifier la structure API matieresEleves")
@@ -247,6 +268,7 @@ async def main():
             "scraped_at": now.isoformat(),
             "status": "success",
             "subjects": subjects,
+            "recent_grades": recent_grades,
         }
         (DATA_DIR / f"grades_{date_str}.json").write_text(json.dumps(payload, indent=2))
         (DATA_DIR / "latest.json").write_text(json.dumps(payload, indent=2))
