@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-06-09T18:01:28.273656+00:00",
+  "scraped_at": "2026-06-09T20:55:14.446256+00:00",
   "status": "success",
   "subjects": [
     {
@@ -45,7 +45,7 @@
     },
     {
       "name": "Math\u00e9matique",
-      "grade": 81.5,
+      "grade": 84.0,
       "weight": 6.0,
       "period": "\u00c9tape 3 (en cours)",
       "etapes_detail": [
@@ -61,7 +61,7 @@
         },
         {
           "seq": 3,
-          "grade": 81.5,
+          "grade": 84.0,
           "source": "en cours"
         }
       ]
@@ -193,6 +193,12 @@
       "date": "2026-06-01"
     },
     {
+      "matiere": "Math\u00e9matique",
+      "label": "CD1 Fin d'ann\u00e9e",
+      "grade": 100.0,
+      "date": "2026-05-28"
+    },
+    {
       "matiere": "Arts plastiques",
       "label": "Devoirs",
       "grade": 100.0,
@@ -238,12 +244,6 @@
       "matiere": "Science/technologie",
       "label": "Examen 3",
       "grade": 95.0,
-      "date": "2026-05-15"
-    },
-    {
-      "matiere": "Anglais",
-      "label": "Snapshot - Listening activity",
-      "grade": 75.0,
       "date": "2026-05-15"
     }
   ]
