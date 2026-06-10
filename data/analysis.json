@@ -1,5 +1,5 @@
 {
-  "analysed_at": "2026-06-09T22:22:50.596074+00:00",
+  "analysed_at": "2026-06-10T16:34:52.490531+00:00",
   "global_average": 70.2,
   "session_status": "failing",
   "alert_level": "critical",
@@ -11,7 +11,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Science et technologie",
@@ -20,16 +20,16 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Mathématique",
       "grade": 84.0,
       "status": "on_track",
-      "trend": "up",
-      "trend_delta": 2.5,
+      "trend": "stable",
+      "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Culture et citoyenneté québécoise",
@@ -38,7 +38,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Histoire et éducation à la citoyenneté",
@@ -47,7 +47,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Géographie",
@@ -56,7 +56,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Français, langue d'enseignement",
@@ -65,7 +65,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
@@ -74,16 +74,16 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 8
+      "data_points": 9
     },
     {
       "name": "Arts plastiques",
       "grade": 66.4,
       "status": "at_risk",
-      "trend": "up",
-      "trend_delta": 3.8,
+      "trend": "stable",
+      "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 8
+      "data_points": 9
     }
   ],
   "subjects_at_risk": [
@@ -94,5 +94,5 @@
     "Français, langue d'enseignement"
   ],
   "insight": "2 matière(s) en échec : Histoire et éducation à la citoyenneté, Français, langue d'enseignement. Action requise.",
-  "data_points": 8
+  "data_points": 9
 }
