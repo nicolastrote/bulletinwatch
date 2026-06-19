@@ -1,6 +1,6 @@
 {
-  "analysed_at": "2026-06-19T21:33:48.252404+00:00",
-  "global_average": 70.8,
+  "analysed_at": "2026-06-19T21:39:01.405825+00:00",
+  "global_average": 71.7,
   "session_status": "failing",
   "alert_level": "critical",
   "subjects": [
@@ -84,15 +84,6 @@
       "trend_delta": -0.7,
       "at_risk": true,
       "data_points": 10
-    },
-    {
-      "name": "Commentaires sur certaines compétences",
-      "grade": 55.0,
-      "status": "failing",
-      "trend": "insufficient_data",
-      "trend_delta": 0.0,
-      "at_risk": true,
-      "data_points": 1
     }
   ],
   "subjects_at_risk": [
@@ -100,9 +91,8 @@
     "Arts plastiques"
   ],
   "subjects_failing": [
-    "Histoire et éducation à la citoyenneté",
-    "Commentaires sur certaines compétences"
+    "Histoire et éducation à la citoyenneté"
   ],
-  "insight": "2 matière(s) en échec : Histoire et éducation à la citoyenneté, Commentaires sur certaines compétences. Action requise.",
+  "insight": "1 matière(s) en échec : Histoire et éducation à la citoyenneté. Action requise.",
   "data_points": 10
 }

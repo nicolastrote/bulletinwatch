@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-06-19T21:33:27.531780+00:00",
+  "scraped_at": "2026-06-19T21:38:39.640889+00:00",
   "status": "success",
   "subjects": [
     {
@@ -181,24 +181,6 @@
           "seq": 3,
           "grade": 65.7,
           "source": "en cours"
-        }
-      ]
-    },
-    {
-      "name": "Commentaires sur certaines comp\u00e9tences",
-      "grade": 55.0,
-      "weight": 2.0,
-      "period": "\u00c9tape 2",
-      "etapes_detail": [
-        {
-          "seq": 1,
-          "grade": 79.0,
-          "source": "publi\u00e9e"
-        },
-        {
-          "seq": 2,
-          "grade": 55.0,
-          "source": "publi\u00e9e"
         }
       ]
     }
