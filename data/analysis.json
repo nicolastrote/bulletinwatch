@@ -1,6 +1,6 @@
 {
-  "analysed_at": "2026-06-10T19:33:22.009528+00:00",
-  "global_average": 70.2,
+  "analysed_at": "2026-06-19T21:33:48.252404+00:00",
+  "global_average": 70.8,
   "session_status": "failing",
   "alert_level": "critical",
   "subjects": [
@@ -11,7 +11,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Science et technologie",
@@ -20,16 +20,16 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Mathématique",
-      "grade": 84.0,
+      "grade": 77.8,
       "status": "on_track",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "down",
+      "trend_delta": -6.2,
       "at_risk": false,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Culture et citoyenneté québécoise",
@@ -38,16 +38,16 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Histoire et éducation à la citoyenneté",
-      "grade": 45.1,
+      "grade": 48.2,
       "status": "failing",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "up",
+      "trend_delta": 3.1,
       "at_risk": true,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Géographie",
@@ -56,43 +56,53 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Français, langue d'enseignement",
-      "grade": 51.4,
-      "status": "failing",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "grade": 62.0,
+      "status": "at_risk",
+      "trend": "up",
+      "trend_delta": 10.6,
       "at_risk": true,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
-      "grade": 82.5,
+      "grade": 82.0,
       "status": "on_track",
       "trend": "stable",
-      "trend_delta": 0.0,
+      "trend_delta": -0.5,
       "at_risk": false,
-      "data_points": 9
+      "data_points": 10
     },
     {
       "name": "Arts plastiques",
-      "grade": 66.4,
+      "grade": 65.7,
       "status": "at_risk",
       "trend": "stable",
+      "trend_delta": -0.7,
+      "at_risk": true,
+      "data_points": 10
+    },
+    {
+      "name": "Commentaires sur certaines compétences",
+      "grade": 55.0,
+      "status": "failing",
+      "trend": "insufficient_data",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 9
+      "data_points": 1
     }
   ],
   "subjects_at_risk": [
+    "Français, langue d'enseignement",
     "Arts plastiques"
   ],
   "subjects_failing": [
     "Histoire et éducation à la citoyenneté",
-    "Français, langue d'enseignement"
+    "Commentaires sur certaines compétences"
   ],
-  "insight": "2 matière(s) en échec : Histoire et éducation à la citoyenneté, Français, langue d'enseignement. Action requise.",
-  "data_points": 9
+  "insight": "2 matière(s) en échec : Histoire et éducation à la citoyenneté, Commentaires sur certaines compétences. Action requise.",
+  "data_points": 10
 }
