@@ -145,7 +145,7 @@ def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> lis
         subjects.append({
             "name": name,
             "grade": grade,
-            "weight": float(units_by_code.get(code, 2)),
+            "weight": float(units_by_code.get(code) or 2),
             "period": period,
             "etapes_detail": etapes_detail,
         })
