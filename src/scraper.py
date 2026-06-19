@@ -106,6 +106,8 @@ def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> lis
         etapes = subject.get("etapes", [])
         if not name:
             continue
+        if code in units_by_code and units_by_code[code] is None:
+            continue
 
         etapes_with_valeur = [
             e for e in etapes
