@@ -1,6 +1,6 @@
 {
-  "analysed_at": "2026-06-19T22:02:49.520333+00:00",
-  "global_average": 71.7,
+  "analysed_at": "2026-06-22T17:40:16.755519+00:00",
+  "global_average": 71.8,
   "session_status": "failing",
   "alert_level": "critical",
   "subjects": [
@@ -11,25 +11,25 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Science et technologie",
-      "grade": 86.0,
+      "grade": 83.4,
       "status": "on_track",
-      "trend": "stable",
-      "trend_delta": 0.0,
+      "trend": "down",
+      "trend_delta": -2.6,
       "at_risk": false,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Mathématique",
       "grade": 77.8,
       "status": "on_track",
-      "trend": "down",
-      "trend_delta": -6.2,
+      "trend": "stable",
+      "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Culture et citoyenneté québécoise",
@@ -38,16 +38,16 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Histoire et éducation à la citoyenneté",
       "grade": 48.2,
       "status": "failing",
-      "trend": "up",
-      "trend_delta": 3.1,
+      "trend": "stable",
+      "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Géographie",
@@ -56,34 +56,34 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Français, langue d'enseignement",
-      "grade": 62.0,
+      "grade": 63.6,
       "status": "at_risk",
-      "trend": "up",
-      "trend_delta": 10.6,
+      "trend": "stable",
+      "trend_delta": 1.6,
       "at_risk": true,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
       "grade": 82.0,
       "status": "on_track",
       "trend": "stable",
-      "trend_delta": -0.5,
+      "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 10
+      "data_points": 11
     },
     {
       "name": "Arts plastiques",
       "grade": 65.7,
       "status": "at_risk",
       "trend": "stable",
-      "trend_delta": -0.7,
+      "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 10
+      "data_points": 11
     }
   ],
   "subjects_at_risk": [
@@ -94,5 +94,5 @@
     "Histoire et éducation à la citoyenneté"
   ],
   "insight": "1 matière(s) en échec : Histoire et éducation à la citoyenneté. Action requise.",
-  "data_points": 10
+  "data_points": 11
 }
