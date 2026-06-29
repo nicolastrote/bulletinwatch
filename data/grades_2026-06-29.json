@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-06-29T21:24:00.756877+00:00",
+  "scraped_at": "2026-06-29T22:54:33.451232+00:00",
   "status": "success",
   "subjects": [
     {
@@ -15,8 +15,8 @@
         },
         {
           "seq": 3,
-          "grade": 81.8,
-          "source": "en cours"
+          "grade": 81.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
@@ -38,8 +38,8 @@
         },
         {
           "seq": 3,
-          "grade": 83.4,
-          "source": "en cours"
+          "grade": 81.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
@@ -61,20 +61,25 @@
         },
         {
           "seq": 3,
-          "grade": 77.8,
-          "source": "en cours"
+          "grade": 72.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
     {
       "name": "Culture et citoyennet\u00e9 qu\u00e9b\u00e9coise",
-      "grade": 75.0,
+      "grade": 73.0,
       "weight": 2.0,
-      "period": "\u00c9tape 2",
+      "period": "\u00c9tape 3",
       "etapes_detail": [
         {
           "seq": 2,
           "grade": 75.0,
+          "source": "publi\u00e9e"
+        },
+        {
+          "seq": 3,
+          "grade": 73.0,
           "source": "publi\u00e9e"
         }
       ]
@@ -92,8 +97,8 @@
         },
         {
           "seq": 3,
-          "grade": 48.2,
-          "source": "en cours"
+          "grade": 48.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
@@ -110,8 +115,8 @@
         },
         {
           "seq": 3,
-          "grade": 75.1,
-          "source": "en cours"
+          "grade": 75.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
@@ -133,8 +138,8 @@
         },
         {
           "seq": 3,
-          "grade": 63.6,
-          "source": "en cours"
+          "grade": 66.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
@@ -156,8 +161,8 @@
         },
         {
           "seq": 3,
-          "grade": 82.0,
-          "source": "en cours"
+          "grade": 78.0,
+          "source": "publi\u00e9e"
         }
       ]
     },
@@ -179,8 +184,8 @@
         },
         {
           "seq": 3,
-          "grade": 65.7,
-          "source": "en cours"
+          "grade": 72.0,
+          "source": "publi\u00e9e"
         }
       ]
     }
