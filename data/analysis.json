@@ -1,5 +1,5 @@
 {
-  "analysed_at": "2026-06-29T22:54:51.029121+00:00",
+  "analysed_at": "2026-06-30T15:25:21.884610+00:00",
   "global_average": 71.7,
   "session_status": "failing",
   "alert_level": "critical",
@@ -11,7 +11,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Science et technologie",
@@ -20,7 +20,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Mathématique",
@@ -29,16 +29,16 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Culture et citoyenneté québécoise",
       "grade": 73.0,
       "status": "on_track",
       "trend": "stable",
-      "trend_delta": -2.0,
+      "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Histoire et éducation à la citoyenneté",
@@ -47,7 +47,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Géographie",
@@ -56,7 +56,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Français, langue d'enseignement",
@@ -65,7 +65,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Anglais, langue seconde - Programme de base",
@@ -74,7 +74,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": false,
-      "data_points": 16
+      "data_points": 17
     },
     {
       "name": "Arts plastiques",
@@ -83,7 +83,7 @@
       "trend": "stable",
       "trend_delta": 0.0,
       "at_risk": true,
-      "data_points": 16
+      "data_points": 17
     }
   ],
   "subjects_at_risk": [
@@ -94,5 +94,5 @@
     "Histoire et éducation à la citoyenneté"
   ],
   "insight": "1 matière(s) en échec : Histoire et éducation à la citoyenneté. Action requise.",
-  "data_points": 16
+  "data_points": 17
 }
