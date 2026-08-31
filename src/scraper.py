@@ -205,10 +205,10 @@ async def scrape() -> list[dict]:
         try:
             # ── Login ──────────────────────────────────────────────────────
             await page.goto("https://portailparents.ca/accueil/fr/", timeout=60000)
-            await page.wait_for_load_state("networkidle", timeout=15000)
+            await page.wait_for_load_state("networkidle", timeout=30000)
 
             await page.click("text=Se connecter", timeout=10000)
-            await page.wait_for_load_state("networkidle", timeout=15000)
+            await page.wait_for_load_state("networkidle", timeout=30000)
 
             await page.click("#email")
             await page.type("#email", email, delay=60)
