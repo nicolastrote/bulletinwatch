@@ -1,6 +1,6 @@
 # BulletinWatch — Instructions
 
-Tableau de bord de suivi des notes scolaires (secondaire 2, Québec).
+Tableau de bord de suivi des notes scolaires (Secondaire 3, Québec).
 
 ## Architecture
 

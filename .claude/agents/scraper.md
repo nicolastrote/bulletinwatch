@@ -1,6 +1,6 @@
 ---
 name: scraper
-description: Se connecte à portailparents.ca, extrait les notes courantes du fils de Nicolas (secondaire 2, Québec), et écrit le résultat brut en JSON. À invoquer en première position du pipeline.
+description: Se connecte à portailparents.ca, extrait les notes courantes du fils de Nicolas (Secondaire 3, Québec), et écrit le résultat brut en JSON. À invoquer en première position du pipeline.
 model: claude-sonnet-4-6
 tools:
   - Read
