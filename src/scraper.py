@@ -171,20 +171,27 @@ async def scrape() -> list[dict]:
         if "json" not in ct:
             return
         try:
+            # Debug: afficher TOUS les API calls
+            if "portail" in url:
+                print(f"[scraper] API call: {url}")
+
             if "matieresEleves" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     grades_data.extend(data)
+                    print(f"[scraper] ✅ matieresEleves: {len(data)} items")
             elif "apprentissage" in url and "matieres/eleves" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     matieres_meta.extend(data)
+                    print(f"[scraper] ✅ matieres_meta: {len(data)} items")
             elif "travaux/visibleParentEleve" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     travaux_data.extend(data)
-        except Exception:
-            pass
+                    print(f"[scraper] ✅ travaux: {len(data)} items")
+        except Exception as e:
+            print(f"[scraper] ⚠️ Exception on_response: {e}")
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
