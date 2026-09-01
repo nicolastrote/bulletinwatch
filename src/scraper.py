@@ -224,14 +224,15 @@ async def scrape() -> list[dict]:
             print(f"[scraper] Connecté — {page.url}")
 
             # ── Naviguer vers Résultats ────────────────────────────────────
-            el = await page.query_selector("a[href*='resultats']")
+            # Pour Secondaire 3, le bouton Résultats reste sur accueil/fr/ (SPA dynamique)
+            el = await page.query_selector("text=Résultats")
             if not el:
-                raise RuntimeError("Lien Résultats introuvable dans le menu")
+                raise RuntimeError("Bouton Résultats introuvable dans le menu")
 
             await el.click()
             await page.wait_for_load_state("networkidle", timeout=30000)
             await page.wait_for_timeout(8000)  # laisser la SPA charger les API calls
-            print(f"[scraper] Page résultats — {page.url}")
+            print(f"[scraper] Résultats chargés — {page.url}")
 
         finally:
             await context.close()
