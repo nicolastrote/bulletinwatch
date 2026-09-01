@@ -11,4 +11,13 @@ services:
       - PORTAL_PASSWORD=${PORTAL_PASSWORD}
     volumes:
       - ./data:/app/data
+      - /dev/shm:/dev/shm
+    shm_size: 1GB
     restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          memory: 512M
