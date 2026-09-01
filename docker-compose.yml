@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.scraper
+    container_name: bulletinwatch-scraper
+    environment:
+      - PORTAL_EMAIL=${PORTAL_EMAIL}
+      - PORTAL_PASSWORD=${PORTAL_PASSWORD}
+    volumes:
+      - ./data:/app/data
+    restart: "no"
