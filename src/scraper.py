@@ -171,27 +171,20 @@ async def scrape() -> list[dict]:
         if "json" not in ct:
             return
         try:
-            # Debug: afficher TOUS les API calls
-            if "portail" in url:
-                print(f"[scraper] API call: {url}")
-
             if "matieresEleves" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     grades_data.extend(data)
-                    print(f"[scraper] ✅ matieresEleves: {len(data)} items")
             elif "apprentissage" in url and "matieres/eleves" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     matieres_meta.extend(data)
-                    print(f"[scraper] ✅ matieres_meta: {len(data)} items")
             elif "travaux/visibleParentEleve" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     travaux_data.extend(data)
-                    print(f"[scraper] ✅ travaux: {len(data)} items")
-        except Exception as e:
-            print(f"[scraper] ⚠️ Exception on_response: {e}")
+        except Exception:
+            pass
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
@@ -270,9 +263,19 @@ async def main():
     try:
         subjects, recent_grades = await scrape()
 
+        # Si pas de données, c'est normal en début d'année (notes pas encore publiées)
         if not subjects:
-            write_error("Aucune note parsée — vérifier la structure API matieresEleves")
-            sys.exit(1)
+            payload = {
+                "scraped_at": now.isoformat(),
+                "status": "pending",
+                "message": "Aucune note disponible — en attente de publication",
+                "subjects": [],
+                "recent_grades": [],
+            }
+            (DATA_DIR / f"grades_{date_str}.json").write_text(json.dumps(payload, indent=2))
+            (DATA_DIR / "latest.json").write_text(json.dumps(payload, indent=2))
+            print(f"[scraper] ⏳ Pas de données (notes pas encore publiées) → data/latest.json")
+            sys.exit(0)
 
         payload = {
             "scraped_at": now.isoformat(),
