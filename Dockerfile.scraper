@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/playwright:v1.48.0-noble
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY src/ ./src/
 COPY data/ ./data/
