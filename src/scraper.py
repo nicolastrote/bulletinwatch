@@ -187,8 +187,9 @@ async def scrape() -> list[dict]:
             pass
 
     async with async_playwright() as p:
-        browser = await p.firefox.launch(
+        browser = await p.chromium.launch(
             headless=True,
+            args=["--disable-blink-features=AutomationControlled"],
         )
         context = await browser.new_context(
             user_agent=(
