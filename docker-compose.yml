@@ -6,22 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile.scraper
     container_name: bulletinwatch-scraper
+    ipc: host
+    init: true
+    privileged: true
     environment:
       - PORTAL_EMAIL=${PORTAL_EMAIL}
       - PORTAL_PASSWORD=${PORTAL_PASSWORD}
+      - CI=true
     volumes:
       - ./data:/app/data
-      - /dev/shm:/dev/shm
-    shm_size: 2GB
     restart: "no"
-    cap_add:
-      - SYS_ADMIN
-    security_opt:
-      - seccomp=unconfined
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 2G
-        reservations:
-          memory: 1G
