@@ -2,13 +2,27 @@ FROM mcr.microsoft.com/playwright:v1.48.0-focal
 
 WORKDIR /app
 
+# Update system and ensure all browser dependencies are present
 RUN apt-get update && apt-get install -y \
     python3-pip \
     git \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    fonts-liberation \
+    libappindicator3-1 \
+    libgconf-2-4 \
+    libxss1 \
+    xdg-utils \
+    wget \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Ensure Playwright browsers are properly installed
+RUN python3 -m pip install --upgrade pip setuptools
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Pre-install and verify Chromium
+RUN python3 -m playwright install --with-deps chromium && \
+    python3 -m playwright install-deps chromium
 
 COPY src/ ./src/
 COPY data/ ./data/

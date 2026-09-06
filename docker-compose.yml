@@ -12,12 +12,16 @@ services:
     volumes:
       - ./data:/app/data
       - /dev/shm:/dev/shm
-    shm_size: 1GB
+    shm_size: 2GB
     restart: "no"
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: 1G
+          cpus: '4'
+          memory: 2G
         reservations:
-          memory: 512M
+          memory: 1G
