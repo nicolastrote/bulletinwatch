@@ -2,6 +2,20 @@ FROM mcr.microsoft.com/playwright:v1.48.0-noble
 
 WORKDIR /app
 
+# Install missing GTK/X11 dependencies for Chromium
+RUN apt-get update && apt-get install -y \
+    libxcb-shm0 \
+    libcursor1 \
+    libgtk-3-0 \
+    libpangocairo-1.0-0 \
+    libpango-1.0-0 \
+    libcairo-gobject2 \
+    libcairo2 \
+    libgdk-pixbuf2.0-0 \
+    libfreetype6 \
+    libfontconfig1 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
