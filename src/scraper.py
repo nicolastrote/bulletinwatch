@@ -10,7 +10,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from dotenv import load_dotenv
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
+
+# Charger les variables d'environnement depuis .env
+load_dotenv()
 
 
 DATA_DIR = Path(__file__).parent.parent / "data"
