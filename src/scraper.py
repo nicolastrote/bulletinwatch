@@ -13,9 +13,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
 
-# Charger les variables d'environnement depuis .env
-load_dotenv()
-
+# Charger les variables d'environnement depuis .env (répertoire racine du projet)
+env_file = Path(__file__).parent.parent / ".env"
+load_dotenv(env_file)
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
