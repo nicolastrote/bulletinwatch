@@ -40,12 +40,15 @@ def to_pct(v, nm) -> float:
     return round(g / nm * 100 if nm != 100 else g, 1)
 
 
-def e3_from_travaux(code: str, travaux: list) -> float | None:
-    """Calcule la note courante d'Étape 3 depuis les travaux visibles parents."""
+def stage_grade_from_travaux(code: str, stage: str, travaux: list) -> float | None:
+    """Calcule la note courante d'une étape donnée depuis les travaux visibles
+    parents. `stage` est déterminé dynamiquement par l'appelant (le portail
+    n'expose que les travaux de l'étape active, quelle qu'elle soit -- 1, 2
+    ou 3, pas seulement la 3 comme c'était codé en dur avant)."""
     items = [
         t for t in travaux
         if t.get("codeMatiere") == code
-        and str(t.get("codeEtape", "")) == "3"
+        and str(t.get("codeEtape", "")) == str(stage)
         and (t.get("resultat") or {}).get("valeur") is not None
     ]
     if not items:
@@ -81,17 +84,27 @@ def parse_recent_grades(travaux: list) -> list[dict]:
     return entries[:10]
 
 
-def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> list[dict]:
-    # Construire les notes Étape 3 depuis les travaux (en cours, pas encore publiées)
-    e3_by_code = {}
-    all_codes = {s.get("codeMatiere") for s in grades_data}
-    for code in all_codes:
-        g = e3_from_travaux(code, travaux)
-        if g is not None:
-            e3_by_code[code] = g
+def parse_subjects(grades_data: list, units_by_code: dict, travaux: list, matieres_meta: list) -> list[dict]:
+    # Étape "en cours" = celle des travaux visibles (le portail n'expose que
+    # les travaux de l'étape active, quelle qu'elle soit -- en tout début
+    # d'année c'est l'étape 1, pas forcément la 3).
+    travaux_stages = {
+        str(t.get("codeEtape")) for t in travaux
+        if t.get("codeEtape") is not None
+    }
+    current_travaux_stage = max(travaux_stages, key=lambda s: int(s)) if travaux_stages else None
+
+    in_progress_by_code = {}
+    if current_travaux_stage is not None:
+        codes_in_travaux = {t.get("codeMatiere") for t in travaux if t.get("codeMatiere")}
+        for code in codes_in_travaux:
+            g = stage_grade_from_travaux(code, current_travaux_stage, travaux)
+            if g is not None:
+                in_progress_by_code[code] = g
 
     # Déterminer l'étape courante = max séquence avec valeur non-null (matieresEleves)
-    # puis étendre avec Étape 3 si des travaux sont disponibles
+    # puis étendre avec l'étape des travaux si elle est plus avancée (ou si
+    # matieresEleves est encore vide, ex: tout début d'étape/d'année).
     current_seq = 0
     for subject in grades_data:
         for etape in subject.get("etapes", []):
@@ -100,11 +113,28 @@ def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> lis
                 seq = etape.get("sequenceEtapeAnnee", 0)
                 if seq > current_seq:
                     current_seq = seq
-    if e3_by_code:
-        current_seq = max(current_seq, 3)
+    if in_progress_by_code and current_travaux_stage is not None:
+        current_seq = max(current_seq, int(current_travaux_stage))
+
+    # Base des matières à parcourir : matieresEleves si des notes publiées
+    # existent déjà, sinon repli sur les métadonnées matieres/eleves (elles
+    # sont toujours présentes dès l'inscription, même sans note publiée --
+    # c'est ce qui permet de voir les notes "en cours" en tout début d'étape,
+    # quand matieresEleves est encore une liste vide côté portail).
+    if grades_data:
+        base_subjects = grades_data
+    else:
+        base_subjects = [
+            {
+                "descriptionMatiere": m.get("descriptionMatiere", ""),
+                "codeMatiere": m.get("codeMatiere", ""),
+                "etapes": [],
+            }
+            for m in matieres_meta
+        ]
 
     subjects = []
-    for subject in grades_data:
+    for subject in base_subjects:
         name = subject.get("descriptionMatiere", "").strip()
         code = subject.get("codeMatiere", "")
         etapes = subject.get("etapes", [])
@@ -118,7 +148,7 @@ def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> lis
             if (e.get("resultat") or {}).get("valeur") is not None
         ]
 
-        # Construire le détail de toutes les étapes (publiées + Étape 3 en cours)
+        # Construire le détail de toutes les étapes (publiées + étape en cours)
         etapes_detail = []
         for e in sorted(etapes_with_valeur, key=lambda e: e.get("sequenceEtapeAnnee", 0)):
             r = e.get("resultat") or {}
@@ -130,16 +160,28 @@ def parse_subjects(grades_data: list, units_by_code: dict, travaux: list) -> lis
                 })
             except (ValueError, TypeError):
                 pass
-        if code in e3_by_code and not any(d["seq"] == 3 for d in etapes_detail):
-            etapes_detail.append({"seq": 3, "grade": e3_by_code[code], "source": "en cours"})
+        if (
+            current_travaux_stage is not None
+            and code in in_progress_by_code
+            and not any(d["seq"] == int(current_travaux_stage) for d in etapes_detail)
+        ):
+            etapes_detail.append({
+                "seq": int(current_travaux_stage),
+                "grade": in_progress_by_code[code],
+                "source": "en cours",
+            })
 
         if not etapes_detail:
             continue
 
-        # Note courante = Étape 3 si disponible, sinon dernière publiée
-        if current_seq == 3 and code in e3_by_code:
-            grade = e3_by_code[code]
-            period = "Étape 3 (en cours)"
+        # Note courante = étape des travaux en cours si disponible, sinon dernière publiée
+        if (
+            current_travaux_stage is not None
+            and current_seq == int(current_travaux_stage)
+            and code in in_progress_by_code
+        ):
+            grade = in_progress_by_code[code]
+            period = f"Étape {current_travaux_stage} (en cours)"
         else:
             target = next(
                 (d for d in reversed(etapes_detail) if d["seq"] == current_seq),
@@ -248,8 +290,12 @@ async def scrape() -> list[dict]:
             await context.close()
             await browser.close()
 
-    if not grades_data:
-        raise RuntimeError("Aucune donnée de notes interceptée (matieresEleves API vide)")
+    # Une vraie erreur de scraping n'a RIEN intercepté du tout (page cassée,
+    # site changé, session expirée en cours de route). matieresEleves vide à
+    # lui seul est un état normal en tout début d'étape -- les notes vivent
+    # alors dans travaux/matieres_meta, gérés en repli par parse_subjects.
+    if not grades_data and not travaux_data and not matieres_meta:
+        raise RuntimeError("Aucune donnée interceptée (matieresEleves, travaux et matieres/eleves tous vides)")
 
     units_by_code = {m["codeMatiere"]: m["nombreUnites"] for m in matieres_meta if "codeMatiere" in m and "nombreUnites" in m}
     if units_by_code:
@@ -257,10 +303,10 @@ async def scrape() -> list[dict]:
     else:
         print("[scraper] Avertissement : unités non capturées, poids = 2 par défaut")
 
-    e3_codes = {t.get("codeMatiere") for t in travaux_data if str(t.get("codeEtape", "")) == "3"}
-    print(f"[scraper] Travaux Étape 3 disponibles pour : {e3_codes or 'aucune'}")
+    travaux_stages = {str(t.get("codeEtape")) for t in travaux_data if t.get("codeEtape") is not None}
+    print(f"[scraper] Étape(s) avec travaux visibles : {travaux_stages or 'aucune'}")
 
-    subjects = parse_subjects(grades_data, units_by_code, travaux_data)
+    subjects = parse_subjects(grades_data, units_by_code, travaux_data, matieres_meta)
     recent_grades = parse_recent_grades(travaux_data)
     print(f"[scraper] {len(subjects)} matières extraites, {len(recent_grades)} notes récentes")
     return subjects, recent_grades
