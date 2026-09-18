@@ -18,6 +18,7 @@ HTML_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BulletinWatch — Notes</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
     <style>
         * {
             margin: 0;
@@ -78,6 +79,12 @@ HTML_TEMPLATE = """
             font-size: 24px;
             font-weight: bold;
             color: #667eea;
+        }
+        
+        .grade-period {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
         }
         
         .status-pending {
@@ -144,17 +151,18 @@ HTML_TEMPLATE = """
                     return;
                 }
                 
-                if (!data.matieres || data.matieres.length === 0) {
+                if (!data.subjects || data.subjects.length === 0) {
                     content.innerHTML = '<div class="status-pending">Pas de données disponibles</div>';
                     return;
                 }
                 
                 let html = '<div class="grades">';
-                data.matieres.forEach(m => {
+                data.subjects.forEach(m => {
                     html += `
                         <div class="grade-item">
-                            <div class="grade-subject">${m.nom}</div>
-                            <div class="grade-value">${m.pourcentage}%</div>
+                            <div class="grade-subject">${m.name}</div>
+                            <div class="grade-value">${m.grade}%</div>
+                            <div class="grade-period">${m.period || ''}</div>
                         </div>
                     `;
                 });
