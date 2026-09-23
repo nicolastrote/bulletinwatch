@@ -6,7 +6,9 @@ Login mozaïk + interception API mozaikportail.ca → data/latest.json
 import asyncio
 import json
 import os
+import re
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,6 +21,40 @@ load_dotenv(env_file)
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
+
+# Politesse envers l'API du portail (qui tourne peut-être sur un petit serveur) :
+# les requêtes vers l'API sont espacées d'au moins API_MIN_INTERVAL_S secondes,
+# même si la page en lance plusieurs en parallèle. Un passage dure donc plus
+# longtemps, d'où les timeouts réseau généreux.
+API_URL_RE = re.compile(r"^https://apiaffaires\.mozaikportail\.ca/")
+API_MIN_INTERVAL_S = 3.0
+NETWORK_IDLE_TIMEOUT_MS = 240_000
+RESULTS_TIMEOUT_S = 300
+
+
+async def wait_for_responses(seen: dict, timeout_s: float) -> bool:
+    """Attend que les réponses attendues (matieresEleves, matieres/eleves, travaux)
+    soient toutes arrivées. On ne se fie pas à networkidle : avec les requêtes
+    espacées par le throttle, il se déclenche avant que les réponses n'arrivent."""
+    deadline = time.monotonic() + timeout_s
+    while not all(seen.values()) and time.monotonic() < deadline:
+        await asyncio.sleep(1)
+    return all(seen.values())
+
+
+class ApiThrottle:
+    def __init__(self, min_interval_s: float):
+        self.min_interval_s = min_interval_s
+        self._lock = asyncio.Lock()
+        self._last = None
+
+    async def wait(self):
+        async with self._lock:
+            if self._last is not None:
+                remaining = self.min_interval_s - (time.monotonic() - self._last)
+                if remaining > 0:
+                    await asyncio.sleep(remaining)
+            self._last = time.monotonic()
 
 
 def write_error(message: str):
@@ -211,6 +247,8 @@ async def scrape() -> list[dict]:
     matieres_meta: list = []
     travaux_data: list = []
 
+    seen = {"grades": False, "meta": False, "travaux": False}
+
     async def on_response(response):
         url = response.url
         ct = response.headers.get("content-type", "")
@@ -221,14 +259,17 @@ async def scrape() -> list[dict]:
                 data = await response.json()
                 if isinstance(data, list):
                     grades_data.extend(data)
+                seen["grades"] = True
             elif "apprentissage" in url and "matieres/eleves" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     matieres_meta.extend(data)
+                seen["meta"] = True
             elif "travaux/visibleParentEleve" in url:
                 data = await response.json()
                 if isinstance(data, list):
                     travaux_data.extend(data)
+                seen["travaux"] = True
         except Exception:
             pass
 
@@ -251,6 +292,17 @@ async def scrape() -> list[dict]:
             ),
             viewport={"width": 1280, "height": 800},
         )
+        throttle = ApiThrottle(API_MIN_INTERVAL_S)
+
+        async def throttled_route(route):
+            await throttle.wait()
+            try:
+                await route.continue_()
+            except Exception:
+                # la page/le contexte a pu être fermé pendant l'attente : rien à faire
+                pass
+
+        await context.route(API_URL_RE, throttled_route)
         page = await context.new_page()
         page.on("response", on_response)
 
@@ -272,7 +324,7 @@ async def scrape() -> list[dict]:
                 "!window.location.href.includes('mozaikb2c.b2clogin.com')",
                 timeout=45000,
             )
-            await page.wait_for_load_state("networkidle", timeout=20000)
+            await page.wait_for_load_state("networkidle", timeout=NETWORK_IDLE_TIMEOUT_MS)
             print(f"[scraper] Connecté — {page.url}")
 
             # ── Naviguer vers Résultats ────────────────────────────────────
@@ -282,8 +334,9 @@ async def scrape() -> list[dict]:
                 raise RuntimeError("Bouton Résultats introuvable dans le menu")
 
             await el.click()
-            await page.wait_for_load_state("networkidle", timeout=30000)
-            await page.wait_for_timeout(8000)  # laisser la SPA charger les API calls
+            if not await wait_for_responses(seen, RESULTS_TIMEOUT_S):
+                missing = [k for k, v in seen.items() if not v]
+                print(f"[scraper] Avertissement : réponses non reçues à temps : {missing}")
             print(f"[scraper] Résultats chargés — {page.url}")
 
         finally:
