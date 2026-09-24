@@ -28,6 +28,21 @@ DATA_DIR.mkdir(exist_ok=True)
 # longtemps, d'où les timeouts réseau généreux.
 API_URL_RE = re.compile(r"^https://apiaffaires\.mozaikportail\.ca/")
 API_MIN_INTERVAL_S = 3.0
+
+# Appels que la page du portail lance d'elle-même mais dont on n'a pas besoin :
+# on ne les envoie tout simplement pas (moins de charge chez eux, et on ne touche
+# jamais aux notifications, communications, photo, préparatifs d'évaluation).
+# Seuls matieresEleves, matieres/eleves et travaux/visibleParentEleve nous servent.
+# Ne PAS bloquer organisationScolaire/mozaikInscription ni consentements : testé le
+# 2026-09-23, la SPA tombe sur la page 500 si ces appels échouent.
+BLOCKED_API_RE = re.compile(
+    r"/api/(?:"
+    r"application/(?:notifications|communications)/"
+    r"|individu/eleves/[^/]+/[^/]+/identification/photo"
+    r"|evaluation/preparatif/"
+    r"|evaluation/apprentissage/[^/]+/[^/]+/travaux/"
+    r")"
+)
 NETWORK_IDLE_TIMEOUT_MS = 240_000
 RESULTS_TIMEOUT_S = 300
 
@@ -293,16 +308,22 @@ async def scrape() -> list[dict]:
             viewport={"width": 1280, "height": 800},
         )
         throttle = ApiThrottle(API_MIN_INTERVAL_S)
+        api_stats = {"sent": 0, "blocked": 0}
 
-        async def throttled_route(route):
-            await throttle.wait()
+        async def api_route(route):
             try:
+                if BLOCKED_API_RE.search(route.request.url):
+                    api_stats["blocked"] += 1
+                    await route.abort()
+                    return
+                await throttle.wait()
+                api_stats["sent"] += 1
                 await route.continue_()
             except Exception:
                 # la page/le contexte a pu être fermé pendant l'attente : rien à faire
                 pass
 
-        await context.route(API_URL_RE, throttled_route)
+        await context.route(API_URL_RE, api_route)
         page = await context.new_page()
         page.on("response", on_response)
 
@@ -338,6 +359,7 @@ async def scrape() -> list[dict]:
                 missing = [k for k, v in seen.items() if not v]
                 print(f"[scraper] Avertissement : réponses non reçues à temps : {missing}")
             print(f"[scraper] Résultats chargés — {page.url}")
+            print(f"[scraper] Appels API : {api_stats['sent']} envoyés, {api_stats['blocked']} inutiles bloqués")
 
         finally:
             await context.close()
