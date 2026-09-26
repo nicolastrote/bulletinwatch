@@ -115,6 +115,40 @@ def stage_grade_from_travaux(code: str, stage: str, travaux: list) -> float | No
     return round(total_pts / total_max * 100, 1) if total_max else None
 
 
+def _to_number(v) -> float | None:
+    try:
+        return float(str(v).replace(",", "."))
+    except (ValueError, TypeError):
+        return None
+
+
+def parse_notes_by_code(travaux: list) -> dict[str, list[dict]]:
+    """Notes individuelles visibles par les parents, groupées par code de matière
+    (le libellé de matière diffère entre travaux et matieres/eleves, le code est
+    stable). Chaque note garde les points bruts (ex. 37 sur 60) en plus du
+    pourcentage, triées de la plus récente à la plus ancienne."""
+    by_code: dict[str, list[dict]] = {}
+    for t in travaux:
+        code = t.get("codeMatiere")
+        r = t.get("resultat") or {}
+        if not code or r.get("valeur") is None:
+            continue
+        points = _to_number(r.get("valeur"))
+        if points is None:
+            continue
+        maximum = _to_number(r.get("noteMaximale")) or 100.0
+        by_code.setdefault(code, []).append({
+            "label": (t.get("descriptionTravail") or "").strip(),
+            "points": points,
+            "max": maximum,
+            "grade": to_pct(points, maximum),
+            "date": t.get("dateTravail") or "",
+        })
+    for notes in by_code.values():
+        notes.sort(key=lambda n: n["date"], reverse=True)
+    return by_code
+
+
 def parse_recent_grades(travaux: list) -> list[dict]:
     entries = []
     for t in travaux:
@@ -144,6 +178,7 @@ def parse_subjects(grades_data: list, units_by_code: dict, travaux: list, matier
         if t.get("codeEtape") is not None
     }
     current_travaux_stage = max(travaux_stages, key=lambda s: int(s)) if travaux_stages else None
+    notes_by_code = parse_notes_by_code(travaux)
 
     in_progress_by_code = {}
     if current_travaux_stage is not None:
@@ -247,6 +282,7 @@ def parse_subjects(grades_data: list, units_by_code: dict, travaux: list, matier
             "weight": float(units_by_code.get(code) or 2),
             "period": period,
             "etapes_detail": etapes_detail,
+            "notes": notes_by_code.get(code, []),
         })
     return subjects
 

@@ -32,6 +32,24 @@ Runs every hour, Monday–Friday, 9 AM–6 PM EDT via GitHub Actions.
 
 Étape 3 grades are not officially published until end of year. BulletinWatch calculates a **running Étape 3 grade** from individual assignments visible to parents (`travaux/visibleParentEleve` API), weighted by their point values.
 
+### Individual grades per subject
+
+The local dashboard (`src/web_server.py`, FastAPI on port 7000) shows, under each subject's running percentage, every graded assignment visible to parents: points and maximum (e.g. `37/60`), percentage, title and date, newest first.
+
+The data comes from `travaux/visibleParentEleve`, grouped by `codeMatiere` (subject labels differ between API endpoints, the code is stable), and is stored in `data/latest.json` as `subjects[].notes`:
+
+```json
+{
+  "name": "Science et technologie",
+  "grade": 64.0,
+  "notes": [
+    {"label": "Examen Chapitre 1", "points": 37.0, "max": 60.0, "grade": 61.7, "date": "2026-09-15"}
+  ]
+}
+```
+
+Assignments without a numeric result yet are skipped. Older `latest.json` files without `notes` still render fine (the subject card just shows no list). Every text coming from the portal is HTML-escaped before display.
+
 ## Stack
 
 - **Python 3.11** + **Playwright** (headless Chromium, bot-detection bypass)
@@ -77,6 +95,13 @@ data/latest.json          — latest scrape (grades + étapes detail)
 data/grades_YYYY-MM-DD.json — daily snapshots (historical data for trends)
 data/analysis.json        — computed averages, risk flags, insights
 docs/index.html           — generated dashboard (GitHub Pages)
+```
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest tests -q
 ```
 
 ## Debugging

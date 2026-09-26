@@ -87,6 +87,47 @@ HTML_TEMPLATE = """
             margin-top: 4px;
         }
         
+        .grade-notes {
+            list-style: none;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #e3e6ea;
+        }
+
+        .grade-note {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 6px 0;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .grade-note-label {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .grade-note-date {
+            display: block;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .grade-note-score {
+            white-space: nowrap;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .grade-note-score small {
+            display: block;
+            font-weight: 400;
+            font-size: 11px;
+            color: #999;
+        }
+
         .status-pending {
             text-align: center;
             padding: 40px;
@@ -134,12 +175,45 @@ HTML_TEMPLATE = """
     </div>
     
     <script>
+        // Les textes viennent du portail scolaire : toujours échappés avant innerHTML.
+        function esc(value) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+            return String(value === null || value === undefined ? '' : value)
+                .replace(/[&<>"']/g, c => map[c]);
+        }
+
+        const numberFormat = new Intl.NumberFormat('fr-CA', { maximumFractionDigits: 1 });
+
+        function formatNumber(n) {
+            return typeof n === 'number' && Number.isFinite(n) ? numberFormat.format(n) : '?';
+        }
+
+        function formatDate(iso) {
+            const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(iso || '');
+            if (!m) return '';
+            const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+            return d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' });
+        }
+
+        function renderNotes(notes) {
+            if (!Array.isArray(notes) || notes.length === 0) return '';
+            const items = notes.map(n => `
+                <li class="grade-note">
+                    <span class="grade-note-label">${esc(n.label || 'Évaluation')}<span class="grade-note-date">${esc(formatDate(n.date))}</span></span>
+                    <span class="grade-note-score">${formatNumber(n.points)}/${formatNumber(n.max)}<small>${formatNumber(n.grade)} %</small></span>
+                </li>
+            `).join('');
+            return `<ul class="grade-notes">${items}</ul>`;
+        }
+
         async function loadGrades() {
             try {
                 const response = await fetch('/api/latest');
                 const data = await response.json();
                 
                 const content = document.getElementById('content');
+                // La classe 'loading' (texte centré + marges) ne vaut que pour le spinner initial
+                content.className = '';
                 
                 if (data.status === 'pending') {
                     content.innerHTML = '<div class="status-pending">⏳ Notes pas encore disponibles (en attente de publication)</div>';
@@ -147,7 +221,7 @@ HTML_TEMPLATE = """
                 }
                 
                 if (data.status === 'error') {
-                    content.innerHTML = '<div class="status-error">❌ ' + data.error + '</div>';
+                    content.innerHTML = '<div class="status-error">❌ ' + esc(data.error) + '</div>';
                     return;
                 }
                 
@@ -160,9 +234,10 @@ HTML_TEMPLATE = """
                 data.subjects.forEach(m => {
                     html += `
                         <div class="grade-item">
-                            <div class="grade-subject">${m.name}</div>
-                            <div class="grade-value">${m.grade}%</div>
-                            <div class="grade-period">${m.period || ''}</div>
+                            <div class="grade-subject">${esc(m.name)}</div>
+                            <div class="grade-value">${esc(m.grade)}%</div>
+                            <div class="grade-period">${esc(m.period)}</div>
+                            ${renderNotes(m.notes)}
                         </div>
                     `;
                 });
@@ -170,7 +245,7 @@ HTML_TEMPLATE = """
                 
                 content.innerHTML = html;
             } catch (error) {
-                document.getElementById('content').innerHTML = '<div class="status-error">Erreur: ' + error.message + '</div>';
+                document.getElementById('content').innerHTML = '<div class="status-error">Erreur: ' + esc(error.message) + '</div>';
                 console.error(error);
             }
         }
